@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import authService from '../../services/authService';
 import styles from './Auth.module.css';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (event) => {
@@ -13,15 +15,19 @@ const Login = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // TODO: Implement actual login logic here
-    console.log('Login attempted with:', credentials);
-    // For now, we'll just redirect to home page
-    navigate('/');
+    setError('');
+    try {
+      await authService.login(credentials.username, credentials.password);
+      navigate('/');
+    } catch (err) {
+      setError('Failed to log in. Please check your credentials.');
+    }
   };
 
   return (
     <div className={styles.authContainer}>
       <h2>Login</h2>
+      {error && <p className={styles.error}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import authService from '../../services/authService';
 import styles from './Auth.module.css';
 
 const Register = () => {
   const [userData, setUserData] = useState({
     username: '',
     email: '',
-    password: '',
-    confirmPassword: '',
-    userType: 'amateur'
+    password1: '',
+    password2: '',
+    user_type: 'amateur'
   });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (event) => {
@@ -19,15 +21,23 @@ const Register = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // TODO: Implement actual registration logic here
-    console.log('Registration attempted with:', userData);
-    // For now, we'll just redirect to login page
-    navigate('/login');
+    setError('');
+    if (userData.password1 !== userData.password2) {
+      setError("Passwords don't match");
+      return;
+    }
+    try {
+      await authService.register(userData);
+      navigate('/login');
+    } catch (err) {
+      setError('Failed to register. Please try again.');
+    }
   };
 
   return (
     <div className={styles.authContainer}>
       <h2>Register</h2>
+      {error && <p className={styles.error}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -49,8 +59,8 @@ const Register = () => {
         />
         <input
           type="password"
-          name="password"
-          value={userData.password}
+          name="password1"
+          value={userData.password1}
           onChange={handleInputChange}
           placeholder="Password"
           required
@@ -58,16 +68,16 @@ const Register = () => {
         />
         <input
           type="password"
-          name="confirmPassword"
-          value={userData.confirmPassword}
+          name="password2"
+          value={userData.password2}
           onChange={handleInputChange}
           placeholder="Confirm Password"
           required
           className={styles.authInput}
         />
         <select
-          name="userType"
-          value={userData.userType}
+          name="user_type"
+          value={userData.user_type}
           onChange={handleInputChange}
           className={styles.authInput}
         >
