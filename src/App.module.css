@@ -1,0 +1,18 @@
+.App {
+    font-family: "Poppins", sans-serif;
+    background-color: var(--background-color);
+    min-height: 100vh;
+    padding-top: 80px; /* Add space under NavBar */
+  }
+  
+  .Main {
+    padding-top: 20px;
+  }
+  
+  .Content {
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--secondary-color);
+  }
+  
