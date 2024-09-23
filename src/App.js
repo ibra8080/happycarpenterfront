@@ -2,11 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
-import styles from './App.module.css'; // We'll create this CSS module file
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import styles from './App.module.css';
 
 const Home = () => <h1>Welcome to Happy Carpenter</h1>;
-const Login = () => <h2>Login Page</h2>;
-const Register = () => <h2>Register Page</h2>;
 
 function App() {
   return (
