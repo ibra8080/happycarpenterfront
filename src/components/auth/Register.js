@@ -11,6 +11,7 @@ const Register = () => {
     password2: ''
   });
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (event) => {
@@ -21,6 +22,7 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+    setSuccessMessage('');
 
     if (userData.password !== userData.password2) {
       setError("Passwords don't match");
@@ -30,7 +32,12 @@ const Register = () => {
     try {
       const response = await authService.register(userData);
       console.log('Registration successful:', response);
-      navigate('/login');
+      setSuccessMessage('Registration successful! Redirecting to home page...');
+      
+      // Simulate a delay before redirecting
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     } catch (err) {
       console.error('Registration error:', err);
       if (typeof err === 'object' && err !== null) {
@@ -48,6 +55,7 @@ const Register = () => {
     <div className={styles.authContainer}>
       <h2>Register</h2>
       {error && <p className={styles.error}>{error}</p>}
+      {successMessage && <p className={styles.success}>{successMessage}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
