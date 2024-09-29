@@ -17,13 +17,16 @@ const authService = {
 
   register: async (userData) => {
     try {
-      const response = await axios.post(`${API_URL}register/`, {
+      const registerResponse = await axios.post(`${API_URL}register/`, {
         username: userData.username,
         email: userData.email,
         password: userData.password,
         password2: userData.password2
       });
-      return response.data;
+      
+      // Auto-login after successful registration
+      const loginResponse = await authService.login(userData.username, userData.password);
+      return { registerData: registerResponse.data, loginData: loginResponse };
     } catch (error) {
       if (error.response) {
         throw error.response.data;
