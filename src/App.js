@@ -10,11 +10,7 @@ import styles from './App.module.css';
 const Home = ({ user }) => (
   <div>
     <h1>Welcome to Happy Carpenter</h1>
-    {user ? (
-      <p>Hello, {user.username}! You're logged in.</p>
-    ) : (
-      <p>Please log in or register to access all features.</p>
-    )}
+    {user && <p>Hello, {user.username || 'User'}! You're logged in.</p>}
   </div>
 );
 
@@ -23,10 +19,13 @@ function App() {
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
-    setUser(currentUser);
+    if (currentUser) {
+      setUser(currentUser);
+    }
   }, []);
 
   const handleLogin = (userData) => {
+    console.log('Login data:', userData);  // Add this line for debugging
     setUser(userData);
   };
 

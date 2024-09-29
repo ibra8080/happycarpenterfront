@@ -7,9 +7,11 @@ const authService = {
     try {
       const response = await axios.post(`${API_URL}token/`, { username, password });
       if (response.data.access) {
-        localStorage.setItem('user', JSON.stringify(response.data));
+        const userData = { username, ...response.data };
+        localStorage.setItem('user', JSON.stringify(userData));
+        return userData;
       }
-      return response.data;
+      return null;
     } catch (error) {
       throw error.response ? error.response.data : new Error('Network error');
     }
@@ -17,16 +19,8 @@ const authService = {
 
   register: async (userData) => {
     try {
-      const registerResponse = await axios.post(`${API_URL}register/`, {
-        username: userData.username,
-        email: userData.email,
-        password: userData.password,
-        password2: userData.password2
-      });
-      
-      // Auto-login after successful registration
-      const loginResponse = await authService.login(userData.username, userData.password);
-      return { registerData: registerResponse.data, loginData: loginResponse };
+      const response = await axios.post(`${API_URL}register/`, userData);
+      return response.data;
     } catch (error) {
       if (error.response) {
         throw error.response.data;
@@ -43,7 +37,16 @@ const authService = {
   },
 
   getCurrentUser: () => {
-    return JSON.parse(localStorage.getItem('user'));
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+        return null;
+      }
+    }
+    return null;
   },
 };
 

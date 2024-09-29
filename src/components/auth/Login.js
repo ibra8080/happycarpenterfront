@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
 import styles from './Auth.module.css';
 
-const Login = () => {
+const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -17,7 +17,8 @@ const Login = () => {
     event.preventDefault();
     setError('');
     try {
-      await authService.login(credentials.username, credentials.password);
+      const userData = await authService.login(credentials.username, credentials.password);
+      onLogin(userData);  // Call the onLogin prop with the user data
       navigate('/');
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
