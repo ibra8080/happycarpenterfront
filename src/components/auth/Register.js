@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
 import styles from './Auth.module.css';
 
-const Register = () => {
+const Register = ({ onRegister }) => {
   const [userData, setUserData] = useState({
     username: '',
     email: '',
@@ -32,12 +32,15 @@ const Register = () => {
     try {
       const response = await authService.register(userData);
       console.log('Registration successful:', response);
-      setSuccessMessage('Registration successful! Redirecting to home page...');
+      setSuccessMessage('Registration successful! Logging you in...');
       
-      // Simulate a delay before redirecting
+      // Call onRegister with the user data
+      onRegister(response);
+      
+      // Redirect to home page after a short delay
       setTimeout(() => {
         navigate('/');
-      }, 2000);
+      }, 1500);
     } catch (err) {
       console.error('Registration error:', err);
       if (typeof err === 'object' && err !== null) {

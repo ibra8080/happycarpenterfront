@@ -25,7 +25,7 @@ function App() {
   }, []);
 
   const handleLogin = (userData) => {
-    console.log('Login data:', userData);  // Add this line for debugging
+    console.log('Login/Register data:', userData);  
     setUser(userData);
   };
 

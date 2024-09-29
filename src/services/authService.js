@@ -19,8 +19,10 @@ const authService = {
 
   register: async (userData) => {
     try {
-      const response = await axios.post(`${API_URL}register/`, userData);
-      return response.data;
+      await axios.post(`${API_URL}register/`, userData);
+      // After successful registration, automatically log in
+      const loginResponse = await authService.login(userData.username, userData.password);
+      return loginResponse;
     } catch (error) {
       if (error.response) {
         throw error.response.data;
