@@ -7,9 +7,8 @@ const Register = () => {
   const [userData, setUserData] = useState({
     username: '',
     email: '',
-    password1: '',
-    password2: '',
-    user_type: 'amateur'
+    password: '',
+    password2: ''
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -22,17 +21,28 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
-    if (userData.password1 !== userData.password2) {
+
+    if (userData.password !== userData.password2) {
       setError("Passwords don't match");
       return;
     }
+
     try {
-      await authService.register(userData);
+      const response = await authService.register(userData);
+      console.log('Registration successful:', response);
       navigate('/login');
     } catch (err) {
-      setError('Failed to register. Please try again.');
+      console.error('Registration error:', err);
+      if (typeof err === 'object' && err !== null) {
+        const errorMessages = Object.entries(err)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+          .join('\n');
+        setError(errorMessages);
+      } else {
+        setError('An error occurred during registration. Please try again.');
+      }
     }
-  };
+  };  
 
   return (
     <div className={styles.authContainer}>
@@ -59,8 +69,8 @@ const Register = () => {
         />
         <input
           type="password"
-          name="password1"
-          value={userData.password1}
+          name="password"
+          value={userData.password}
           onChange={handleInputChange}
           placeholder="Password"
           required
@@ -75,15 +85,6 @@ const Register = () => {
           required
           className={styles.authInput}
         />
-        <select
-          name="user_type"
-          value={userData.user_type}
-          onChange={handleInputChange}
-          className={styles.authInput}
-        >
-          <option value="amateur">Amateur</option>
-          <option value="professional">Professional</option>
-        </select>
         <button type="submit" className={styles.authButton}>Register</button>
       </form>
     </div>
