@@ -10,7 +10,21 @@
   padding: 20px 0;
 }
 
+.leftSidebar, .rightSidebar {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.mainContent {
+  padding: 0 15px;
+}
+
 @media (max-width: 768px) {
+  .leftSidebar, .rightSidebar {
+    margin-bottom: 20px;
+  }
+  
   .Main {
     padding: 10px 0;
   }

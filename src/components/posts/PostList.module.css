@@ -1,21 +1,36 @@
+.postListContainer {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
 .postCard {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .postImage {
-    height: 200px;
-    object-fit: cover;
-  }
-  
-  .postCard .card-body {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .postCard .btn {
-    margin-top: auto;
-  }
-  
+  width: 100%;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.postImage {
+  height: 200px;
+  object-fit: cover;
+}
+
+.postMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.icon {
+  margin-right: 5px;
+  color: var(--secondary-color);
+}
+
+.postCard .card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.postCard .btn {
+  align-self: flex-start;
+  margin-top: 10px;
+}
