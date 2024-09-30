@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Container } from 'react-bootstrap';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import Login from './components/auth/Login';
@@ -38,21 +39,19 @@ function App() {
     <Router>
       <div className={styles.App}>
         <Header user={user} onLogout={handleLogout} />
-        <main className={styles.Main}>
-          <div className={styles.Content}>
-            <Routes>
-              <Route path="/" element={<Home user={user} />} />
-              <Route 
-                path="/login" 
-                element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} 
-              />
-              <Route 
-                path="/register" 
-                element={user ? <Navigate to="/" /> : <Register onRegister={handleLogin} />} 
-              />
-            </Routes>
-          </div>
-        </main>
+        <Container className={styles.Main}>
+          <Routes>
+            <Route path="/" element={<Home user={user} />} />
+            <Route 
+              path="/login" 
+              element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} 
+            />
+            <Route 
+              path="/register" 
+              element={user ? <Navigate to="/" /> : <Register onRegister={handleLogin} />} 
+            />
+          </Routes>
+        </Container>
         <Footer />
       </div>
     </Router>
