@@ -1,0 +1,30 @@
+.navbar {
+    background-color: #FAFAFA !important;
+  }
+  
+  .navbarBrand img {
+    max-width: 240px;
+    height: auto;
+  }
+  
+  .navLink {
+    color: #3f3f3f !important;
+    transition: color 0.3s ease;
+  }
+  
+  .navLink:hover {
+    color: #a60d0d !important;
+  }
+  
+  .navLink svg {
+    color: #D69723;
+    margin-right: 5px;
+  }
+  
+  .profileImage {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+  }
