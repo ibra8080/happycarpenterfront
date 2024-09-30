@@ -1,0 +1,21 @@
+.sidebar {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  
+  .sidebarList {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .sidebarList li {
+    margin-bottom: 10px;
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar {
+      margin-bottom: 20px;
+    }
+  }
+  
