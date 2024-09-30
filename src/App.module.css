@@ -1,27 +1,17 @@
 .App {
-    font-family: "Poppins", sans-serif;
-    background-color: var(--background-color);
-    min-height: 100vh;
-    padding-top: 80px;
-    display: flex;
-    flex-direction: column;
-    background-color: #FAFAFA;
-  }
-  
-  .Main {
-    flex: 1;
-    padding: 20px 0;
-  }
-  
-  .Content {
-    background-color: #ffffff;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid var(--secondary-color);
-  }
-  
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+.Main {
+  flex: 1;
+  padding: 20px 0;
+}
+
 @media (max-width: 768px) {
-    .Main {
-      padding: 10px 0;
-    }
+  .Main {
+    padding: 10px 0;
   }
+}

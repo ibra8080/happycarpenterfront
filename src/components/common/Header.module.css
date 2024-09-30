@@ -1,30 +1,39 @@
 .navbar {
-    background-color: #FAFAFA !important;
-  }
-  
-  .navbarBrand img {
-    max-width: 240px;
-    height: auto;
-  }
-  
-  .navLink {
-    color: #3f3f3f !important;
-    transition: color 0.3s ease;
-  }
-  
-  .navLink:hover {
-    color: #a60d0d !important;
-  }
-  
-  .navLink svg {
-    color: #D69723;
-    margin-right: 5px;
-  }
-  
-  .profileImage {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
-  }
+  background-color: var(--background-color) !important;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: 1px solid var(--primary-color);
+}
+
+.navbarBrand img {
+  max-width: 240px;
+  height: auto;
+}
+
+.navLink {
+  color: var(--secondary-color) !important;
+  transition: color 0.3s ease;
+  padding: 15px 10px !important;
+}
+
+.navLink:hover {
+  color: var(--primary-color) !important;
+}
+
+.navLink svg {
+  color: var(--secondary-color);
+  margin-right: 5px;
+  transition: color 0.3s ease;
+}
+
+.navLink:hover svg {
+  color: var(--primary-color);
+}
+
+.profileImage {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}

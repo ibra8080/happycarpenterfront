@@ -7,7 +7,7 @@ import styles from './Header.module.css';
 
 const Header = ({ user, onLogout }) => {
   return (
-    <Navbar bg="light" expand="lg" className={`mb-3 ${styles.navbar}`}>
+    <Navbar bg="light" expand="lg" className={styles.navbar}>
       <Container>
         <Navbar.Brand as={Link} to="/" className={styles.navbarBrand}>
           <img
