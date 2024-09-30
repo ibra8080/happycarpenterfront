@@ -3,13 +3,22 @@ import { Link } from 'react-router-dom';
 
 const Header = ({ user, onLogout }) => {
   return (
-    <header>
+    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' }}>
       <nav>
-        <ul>
+        <ul style={{ listStyle: 'none', display: 'flex', gap: '20px' }}>
           <li><Link to="/">Home</Link></li>
           {user ? (
             <>
-              <li>Welcome, {user.username || 'User'}!</li>
+              <li style={{ display: 'flex', alignItems: 'center' }}>
+                {user.profile_image && (
+                  <img 
+                    src={user.profile_image} 
+                    alt="Profile" 
+                    style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '10px', objectFit: 'cover' }}
+                  />
+                )}
+                 {user.username || 'User'}
+              </li>
               <li><button onClick={onLogout}>Logout</button></li>
             </>
           ) : (

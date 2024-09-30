@@ -7,7 +7,16 @@ const authService = {
     try {
       const response = await axios.post(`${API_URL}token/`, { username, password });
       if (response.data.access) {
-        const userData = { username, ...response.data };
+        // Fetch user profile data including the image
+        const userProfileResponse = await axios.get(`${API_URL}profiles/`, {
+          headers: { Authorization: `Bearer ${response.data.access}` }
+        });
+        const userProfile = userProfileResponse.data.find(profile => profile.owner === username);
+        const userData = { 
+          username, 
+          ...response.data,
+          profile_image: userProfile ? userProfile.image : null
+        };
         localStorage.setItem('user', JSON.stringify(userData));
         return userData;
       }
