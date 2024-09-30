@@ -1,0 +1,21 @@
+.rightSidebar {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  
+  .adPlaceholder {
+    background-color: #e9ecef;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+  }
+  
+  @media (max-width: 768px) {
+    .rightSidebar {
+      margin-top: 20px;
+    }
+  }
+  
