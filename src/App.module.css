@@ -10,10 +10,12 @@
   padding: 20px 0;
 }
 
-.leftSidebar, .rightSidebar {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 5px;
+.leftSidebar {
+  border-right: #a60d0d solid 1px;
+}
+
+.rightSidebar {
+  border-left: #a60d0d solid 1px;
 }
 
 .mainContent {
