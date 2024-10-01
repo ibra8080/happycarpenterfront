@@ -12,20 +12,12 @@ import authService from './services/authService';
 import styles from './App.module.css';
 
 const Home = ({ user }) => (
-  <Row>
-    <Col md={3} className={styles.leftSidebar}>
-      <Sidebar user={user} />
-    </Col>
-    <Col md={6} className={styles.mainContent}>
-      {user && <p>Hello, {user.username || 'User'}! You're logged in.</p>}
-      <PostList />
-    </Col>
-    <Col md={3} className={styles.rightSidebar}>
-      <RightSidebar />
-    </Col>
-  </Row>
+  <>
+    <h1>Welcome to Happy Carpenter</h1>
+    {user && <p>Hello, {user.username || 'User'}! You're logged in.</p>}
+    <PostList />
+  </>
 );
-
 
 function App() {
   const [user, setUser] = useState(null);
@@ -53,17 +45,27 @@ function App() {
         <Header user={user} onLogout={handleLogout} />
         <main className={styles.Main}>
           <Container fluid>
-            <Routes>
-              <Route path="/" element={<Home user={user} />} />
-              <Route 
-                path="/login" 
-                element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} 
-              />
-              <Route 
-                path="/register" 
-                element={user ? <Navigate to="/" /> : <Register onRegister={handleLogin} />} 
-              />
-            </Routes>
+            <Row>
+              <Col md={3} className={styles.leftSidebar}>
+                <Sidebar user={user} />
+              </Col>
+              <Col md={6} className={styles.mainContent}>
+                <Routes>
+                  <Route path="/" element={<Home user={user} />} />
+                  <Route 
+                    path="/login" 
+                    element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} 
+                  />
+                  <Route 
+                    path="/register" 
+                    element={user ? <Navigate to="/" /> : <Register onRegister={handleLogin} />} 
+                  />
+                </Routes>
+              </Col>
+              <Col md={3} className={styles.rightSidebar}>
+                <RightSidebar />
+              </Col>
+            </Row>
           </Container>
         </main>
         <Footer />

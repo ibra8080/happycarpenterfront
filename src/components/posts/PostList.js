@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Container } from 'react-bootstrap';
+import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaHeart, FaComment } from 'react-icons/fa';
 import axios from 'axios';
@@ -29,7 +29,7 @@ const PostList = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <Container className={styles.postListContainer}>
+    <div className={styles.postListContainer}>
       {posts.map(post => (
         <Card key={post.id} className={`${styles.postCard} mb-4`}>
           {post.image && (
@@ -48,8 +48,9 @@ const PostList = () => {
           </Card.Body>
         </Card>
       ))}
-    </Container>
+    </div>
   );
 };
 
 export default PostList;
+
