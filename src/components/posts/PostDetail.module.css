@@ -1,0 +1,22 @@
+.postDetailCard {
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .postImage {
+    max-height: 400px;
+    object-fit: cover;
+  }
+  
+  .postMeta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  
+  .icon {
+    margin-right: 5px;
+    color: var(--secondary-color);
+  }
+  
