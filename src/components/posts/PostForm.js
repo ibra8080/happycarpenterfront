@@ -9,6 +9,7 @@ const PostForm = () => {
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -28,18 +29,21 @@ const PostForm = () => {
         withCredentials: true,
       });
       console.log('Post created successfully:', response.data);
-      navigate(`/posts/${response.data.id}`);
+      setSuccess('Post created successfully!');
+      setTimeout(() => {
+        navigate('/');
+      }, 2000); // Redirect after 2 seconds
     } catch (err) {
       console.error('Error creating post:', err.response ? err.response.data : err.message);
       setError('Failed to create post. Please try again.');
     }
   };
 
-
   return (
     <div className={styles.postForm}>
       <h2>Create a New Post</h2>
       {error && <Alert variant="danger">{error}</Alert>}
+      {success && <Alert variant="success">{success}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Title</Form.Label>
