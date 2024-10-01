@@ -2,19 +2,21 @@ import axios from 'axios';
 
 const API_URL = 'https://happy-carpenter-ebf6de9467cb.herokuapp.com/';
 
+axios.defaults.withCredentials = true;
+
 const authService = {
   login: async (username, password) => {
     try {
-      const response = await axios.post(`${API_URL}token/`, { username, password });
-      if (response.data.access) {
-        // Fetch user profile data including the image
-        const userProfileResponse = await axios.get(`${API_URL}profiles/`, {
+      const response = await axios.post(`${API_URL}dj-rest-auth/login/`, { username, password });
+      if (response.data.user) {
+        // Fetch the user's profile data
+        const profileResponse = await axios.get(`${API_URL}profiles/`, {
           headers: { Authorization: `Bearer ${response.data.access}` }
         });
-        const userProfile = userProfileResponse.data.find(profile => profile.owner === username);
-        const userData = { 
-          username, 
-          ...response.data,
+        const userProfile = profileResponse.data.find(profile => profile.owner === username);
+        const userData = {
+          ...response.data.user,
+          token: response.data.access,
           profile_image: userProfile ? userProfile.image : null
         };
         localStorage.setItem('user', JSON.stringify(userData));
@@ -26,25 +28,13 @@ const authService = {
     }
   },
 
-  register: async (userData) => {
+  logout: async () => {
     try {
-      await axios.post(`${API_URL}register/`, userData);
-      // After successful registration, automatically log in
-      const loginResponse = await authService.login(userData.username, userData.password);
-      return loginResponse;
+      await axios.post(`${API_URL}dj-rest-auth/logout/`);
+      localStorage.removeItem('user');
     } catch (error) {
-      if (error.response) {
-        throw error.response.data;
-      } else if (error.request) {
-        throw new Error('No response received from the server');
-      } else {
-        throw new Error('Error setting up the request');
-      }
+      console.error('Logout error:', error);
     }
-  },
-
-  logout: () => {
-    localStorage.removeItem('user');
   },
 
   getCurrentUser: () => {
@@ -59,6 +49,28 @@ const authService = {
     }
     return null;
   },
+
+  refreshUserData: async () => {
+    const currentUser = authService.getCurrentUser();
+    if (currentUser && currentUser.token) {
+      try {
+        const profileResponse = await axios.get(`${API_URL}profiles/`, {
+          headers: { Authorization: `Bearer ${currentUser.token}` }
+        });
+        const userProfile = profileResponse.data.find(profile => profile.owner === currentUser.username);
+        const updatedUserData = {
+          ...currentUser,
+          profile_image: userProfile ? userProfile.image : null
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUserData));
+        return updatedUserData;
+      } catch (error) {
+        console.error('Error refreshing user data:', error);
+        return currentUser;
+      }
+    }
+    return null;
+  }
 };
 
 export default authService;
