@@ -10,6 +10,7 @@ const PostForm = () => {
   const [image, setImage] = useState(null);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState('');
   const [imageFilter, setImageFilter] = useState('normal');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -38,6 +39,15 @@ const PostForm = () => {
     fetchCategories();
   }, []);
 
+  const handleAddCategory = () => {
+    if (newCategory.trim()) {
+      const newCategoryObject = { id: `new-${Date.now()}`, name: newCategory.trim() };
+      setCategories([...categories, newCategoryObject]);
+      setSelectedCategories([...selectedCategories, newCategoryObject.id]);
+      setNewCategory('');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -47,10 +57,15 @@ const PostForm = () => {
       formData.append('image', image);
     }
     formData.append('image_filter', imageFilter);
-    selectedCategories.forEach(categoryId => {
-      formData.append('categories', categoryId);
+  
+    // Handle categories
+    const categoriesData = selectedCategories.map(categoryId => {
+      const category = categories.find(cat => cat.id === categoryId);
+      return { name: category.name };
     });
-
+  
+    formData.append('categories', JSON.stringify(categoriesData));
+  
     try {
       const response = await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/', formData, {
         headers: {
@@ -67,7 +82,7 @@ const PostForm = () => {
       console.error('Error creating post:', err.response ? err.response.data : err.message);
       setError('Failed to create post. Please try again.');
     }
-  };
+  };  
 
   return (
     <div className={styles.postForm}>
@@ -113,6 +128,20 @@ const PostForm = () => {
               <option key={category.id} value={category.id}>{category.name}</option>
             ))}
           </Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Add New Category</Form.Label>
+          <div className="d-flex">
+            <Form.Control
+              type="text"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder="Enter new category"
+            />
+            <Button variant="secondary" onClick={handleAddCategory} className="ml-2">
+              Add
+            </Button>
+          </div>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Image Filter</Form.Label>
