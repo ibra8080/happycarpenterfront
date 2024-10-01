@@ -6,6 +6,7 @@ import Footer from './components/common/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import PostList from './components/posts/PostList';
+import PostForm from './components/posts/PostForm';
 import Sidebar from './components/common/Sidebar';
 import RightSidebar from './components/common/RightSidebar';
 import authService from './services/authService';
@@ -23,15 +24,21 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-    }
+    const fetchUserData = async () => {
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        const refreshedUser = await authService.refreshUserData();
+        setUser(refreshedUser);
+      }
+    };
+
+    fetchUserData();
   }, []);
 
-  const handleLogin = (userData) => {
-    console.log('Login/Register data:', userData);  
-    setUser(userData);
+  const handleLogin = async (userData) => {
+    console.log('Login/Register data:', userData);
+    const fullUserData = await authService.refreshUserData();
+    setUser(fullUserData);
   };
 
   const handleLogout = () => {
@@ -59,6 +66,10 @@ function App() {
                   <Route 
                     path="/register" 
                     element={user ? <Navigate to="/" /> : <Register onRegister={handleLogin} />} 
+                  />
+                  <Route 
+                    path="/create-post" 
+                    element={user ? <PostForm /> : <Navigate to="/login" />} 
                   />
                 </Routes>
               </Col>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaPlusSquare } from 'react-icons/fa';
 import logo from '../../assets/images/happycarpenterlogo.png';
 import styles from './Header.module.css';
 
@@ -23,6 +23,7 @@ const Header = ({ user, onLogout }) => {
             <Nav.Link as={Link} to="/" className={styles.navLink}><FaHome /> Home</Nav.Link>
             {user ? (
               <>
+                <Nav.Link as={Link} to="/create-post" className={styles.navLink}><FaPlusSquare /> Create Post</Nav.Link>
                 <Nav.Link as={Link} to="/profile" className={styles.navLink}>
                   {user.profile_image && (
                     <img 
