@@ -15,16 +15,22 @@ const PostDetail = ({ user }) => {
   const [error, setError] = useState(null);
   const [commentError, setCommentError] = useState(null);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likeError, setLikeError] = useState(null);
 
   useEffect(() => {
     const fetchPostAndComments = async () => {
       try {
-        const [postResponse, commentsResponse] = await Promise.all([
+        const [postResponse, commentsResponse, likesResponse] = await Promise.all([
           axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/${id}/`),
-          axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/comments/?post=${id}`)
+          axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/comments/?post=${id}`),
+          user ? axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/likes/?post=${id}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          }) : Promise.resolve({ data: { results: [] } })
         ]);
         setPost(postResponse.data);
         setComments(commentsResponse.data.results || []);
+        setLiked(likesResponse.data.results.some(like => like.owner === user?.username));
         setLoading(false);
       } catch (err) {
         console.error('Error fetching post and comments:', err);
@@ -34,24 +40,34 @@ const PostDetail = ({ user }) => {
     };
 
     fetchPostAndComments();
-  }, [id]);
+  }, [id, user]);
 
   const handleLike = async () => {
     if (!user) {
       navigate('/login');
       return;
     }
+    setLikeError(null);
     try {
-      await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/likes/', 
-        { post: id },
-        { 
+      if (liked) {
+        await axios.delete(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/likes/${id}/`, {
           headers: { Authorization: `Bearer ${user.token}` },
-          withCredentials: true 
-        }
-      );
-      setPost(prevPost => ({ ...prevPost, likes_count: prevPost.likes_count + 1 }));
+        });
+        setLiked(false);
+        setPost(prevPost => ({ ...prevPost, likes_count: Math.max((prevPost.likes_count || 0) - 1, 0) }));
+      } else {
+        await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/likes/', 
+          { post: id },
+          { 
+            headers: { Authorization: `Bearer ${user.token}` },
+          }
+        );
+        setLiked(true);
+        setPost(prevPost => ({ ...prevPost, likes_count: (prevPost.likes_count || 0) + 1 }));
+      }
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error('Error handling like:', error);
+      setLikeError(error.response?.data?.detail || 'An error occurred while processing your like.');
     }
   };
 
@@ -69,11 +85,9 @@ const PostDetail = ({ user }) => {
         { 
           post: id, 
           content: newComment,
-          owner: user.id
         },
         { 
           headers: { Authorization: `Bearer ${user.token}` },
-          withCredentials: true 
         }
       );
       setComments(prevComments => [response.data, ...prevComments]);
@@ -113,10 +127,15 @@ const PostDetail = ({ user }) => {
           <Card.Title>{post.title}</Card.Title>
           <Card.Text>{post.content}</Card.Text>
           <div className={styles.postMeta}>
-            <span><FaHeart className={styles.icon} /> {post.likes_count || 0}</span>
+            <Button 
+              variant={liked ? "danger" : "outline-danger"} 
+              onClick={handleLike}
+            >
+              <FaHeart /> {post.likes_count || 0}
+            </Button>
             <span><FaComment className={styles.icon} /> {comments.length}</span>
           </div>
-          <Button variant="primary" onClick={handleLike}>Like</Button>
+          {likeError && <Alert variant="danger">{likeError}</Alert>}
         </Card.Body>
       </Card>
 
@@ -163,6 +182,5 @@ const PostDetail = ({ user }) => {
     </div>
   );
 };
-
 
 export default PostDetail;
