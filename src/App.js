@@ -6,39 +6,28 @@ import Footer from './components/common/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import PostList from './components/posts/PostList';
-import PostForm from './components/posts/PostForm';
 import PostDetail from './components/posts/PostDetail';
+import PostForm from './components/posts/PostForm';
 import Sidebar from './components/common/Sidebar';
 import RightSidebar from './components/common/RightSidebar';
 import authService from './services/authService';
 import styles from './App.module.css';
 
-const Home = ({ user }) => (
-  <>
-    {user && <p>Hello, {user.username || 'User'} You're logged in.</p>}
-    <PostList />
-  </>
-);
+// ... other imports and code ...
 
 function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const currentUser = authService.getCurrentUser();
-      if (currentUser) {
-        const refreshedUser = await authService.refreshUserData();
-        setUser(refreshedUser);
-      }
-    };
-
-    fetchUserData();
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+      setUser(currentUser);
+    }
   }, []);
 
-  const handleLogin = async (userData) => {
-    console.log('Login/Register data:', userData);
-    const fullUserData = await authService.refreshUserData();
-    setUser(fullUserData);
+  const handleLogin = (userData) => {
+    console.log('Login/Register data:', userData);  
+    setUser(userData);
   };
 
   const handleLogout = () => {
@@ -58,7 +47,7 @@ function App() {
               </Col>
               <Col md={6} className={styles.mainContent}>
                 <Routes>
-                  <Route path="/" element={<Home user={user} />} />
+                  <Route path="/" element={<PostList />} />
                   <Route 
                     path="/login" 
                     element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} 
@@ -71,10 +60,8 @@ function App() {
                     path="/create-post" 
                     element={user ? <PostForm /> : <Navigate to="/login" />} 
                   />
-                  <Route 
-                    path="/posts/:id" 
-                    element={<PostDetail />}
-                  />
+                  {/* Update the PostDetail route to pass the user prop */}
+                  <Route path="/posts/:id" element={<PostDetail user={user} />} />
                 </Routes>
               </Col>
               <Col md={3} className={styles.rightSidebar}>

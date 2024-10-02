@@ -1,22 +1,59 @@
+.postDetailContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
 .postDetailCard {
-    max-width: 800px;
-    margin: 0 auto;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .postImage {
-    max-height: 400px;
-    object-fit: cover;
-  }
-  
-  .postMeta {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-  }
-  
-  .icon {
-    margin-right: 5px;
-    color: var(--secondary-color);
-  }
-  
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.postImage {
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.postMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.icon {
+  margin-right: 5px;
+  color: var(--secondary-color);
+}
+
+.commentsSection {
+  margin-top: 30px;
+}
+
+.commentCard {
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.noComments {
+  text-align: center;
+  color: #666;
+  margin-top: 20px;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.loadingSpinner {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+  color: var(--secondary-color);
+}
