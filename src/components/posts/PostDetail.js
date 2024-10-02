@@ -21,17 +21,20 @@ const PostDetail = ({ user }) => {
   useEffect(() => {
     const fetchPostAndComments = async () => {
       try {
-        const [postResponse, commentsResponse, likesResponse] = await Promise.all([
+        const [postResponse, commentsResponse] = await Promise.all([
           axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/${id}/`),
-          axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/comments/?post=${id}`),
-          user ? axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/likes/?post=${id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-          }) : Promise.resolve({ data: { results: [] } })
+          axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/comments/?post=${id}`)
         ]);
         setPost(postResponse.data);
         setComments(commentsResponse.data.results || []);
-        setLiked(likesResponse.data.results.some(like => like.owner === user?.username));
         setLoading(false);
+
+        if (user) {
+          const likesResponse = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/likes/?post=${id}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          });
+          setLiked(likesResponse.data.results.some(like => like.owner === user.username));
+        }
       } catch (err) {
         console.error('Error fetching post and comments:', err);
         setError('Failed to fetch post and comments. Please try again later.');
@@ -54,7 +57,7 @@ const PostDetail = ({ user }) => {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         setLiked(false);
-        setPost(prevPost => ({ ...prevPost, likes_count: Math.max((prevPost.likes_count || 0) - 1, 0) }));
+        setPost(prevPost => ({ ...prevPost, likes_count: prevPost.likes_count - 1 }));
       } else {
         await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/likes/', 
           { post: id },
@@ -63,13 +66,14 @@ const PostDetail = ({ user }) => {
           }
         );
         setLiked(true);
-        setPost(prevPost => ({ ...prevPost, likes_count: (prevPost.likes_count || 0) + 1 }));
+        setPost(prevPost => ({ ...prevPost, likes_count: prevPost.likes_count + 1 }));
       }
     } catch (error) {
       console.error('Error handling like:', error);
       setLikeError(error.response?.data?.detail || 'An error occurred while processing your like.');
     }
   };
+
 
   const handleAddComment = async (e) => {
     e.preventDefault();
