@@ -16,8 +16,10 @@ const authService = {
         const userProfile = profileResponse.data.find(profile => profile.owner === username);
         const userData = {
           ...response.data.user,
+          id: response.data.user.pk,
           token: response.data.access,
-          profile_image: userProfile ? userProfile.image : null
+          profile_image: userProfile ? userProfile.image : null,
+          username: username
         };
         localStorage.setItem('user', JSON.stringify(userData));
         return userData;

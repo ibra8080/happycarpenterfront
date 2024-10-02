@@ -68,7 +68,8 @@ const PostDetail = ({ user }) => {
         'https://happy-carpenter-ebf6de9467cb.herokuapp.com/comments/', 
         { 
           post: id, 
-          content: newComment
+          content: newComment,
+          owner: user.id
         },
         { 
           headers: { Authorization: `Bearer ${user.token}` },
@@ -90,8 +91,9 @@ const PostDetail = ({ user }) => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown date';
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return new Date(dateString).toLocaleString(undefined, options);
   };
 
   if (loading) return <div className={styles.loadingSpinner}>Loading post...</div>;
@@ -149,7 +151,7 @@ const PostDetail = ({ user }) => {
               <Card.Body>
                 <Card.Text>{comment.content}</Card.Text>
                 <Card.Subtitle className="mb-2 text-muted">
-                  By {comment.owner} on {formatDate(comment.created_at)}
+                  By {comment.owner || 'Unknown user'} on {formatDate(comment.created_at)}
                 </Card.Subtitle>
               </Card.Body>
             </Card>
@@ -161,5 +163,6 @@ const PostDetail = ({ user }) => {
     </div>
   );
 };
+
 
 export default PostDetail;
