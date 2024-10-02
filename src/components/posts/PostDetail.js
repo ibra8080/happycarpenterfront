@@ -21,9 +21,10 @@ const PostDetail = () => {
           axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/comments/?post=${id}`)
         ]);
         setPost(postResponse.data);
-        setComments(commentsResponse.data);
+        setComments(commentsResponse.data.results || []); // Ensure it's always an array
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching post and comments:', err);
         setError('Failed to fetch post and comments. Please try again later.');
         setLoading(false);
       }
@@ -78,16 +79,20 @@ const PostDetail = () => {
 
       <div className={styles.commentsSection}>
         <h3>Comments</h3>
-        {comments.map(comment => (
-          <Card key={comment.id} className={styles.commentCard}>
-            <Card.Body>
-              <Card.Text>{comment.content}</Card.Text>
-              <Card.Subtitle className="mb-2 text-muted">
-                By {comment.owner} on {new Date(comment.created_at).toLocaleString()}
-              </Card.Subtitle>
-            </Card.Body>
-          </Card>
-        ))}
+        {comments.length > 0 ? (
+          comments.map(comment => (
+            <Card key={comment.id} className={styles.commentCard}>
+              <Card.Body>
+                <Card.Text>{comment.content}</Card.Text>
+                <Card.Subtitle className="mb-2 text-muted">
+                  By {comment.owner} on {new Date(comment.created_at).toLocaleString()}
+                </Card.Subtitle>
+              </Card.Body>
+            </Card>
+          ))
+        ) : (
+          <p>No comments yet.</p>
+        )}
 
         <Form onSubmit={handleAddComment}>
           <Form.Group className="mb-3">

@@ -7,6 +7,7 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import PostList from './components/posts/PostList';
 import PostForm from './components/posts/PostForm';
+import PostDetail from './components/posts/PostDetail';
 import Sidebar from './components/common/Sidebar';
 import RightSidebar from './components/common/RightSidebar';
 import authService from './services/authService';
@@ -14,8 +15,7 @@ import styles from './App.module.css';
 
 const Home = ({ user }) => (
   <>
-    <h1>Welcome to Happy Carpenter</h1>
-    {user && <p>Hello, {user.username || 'User'}! You're logged in.</p>}
+    {user && <p>Hello, {user.username || 'User'} You're logged in.</p>}
     <PostList />
   </>
 );
@@ -70,6 +70,10 @@ function App() {
                   <Route 
                     path="/create-post" 
                     element={user ? <PostForm /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/posts/:id" 
+                    element={<PostDetail />}
                   />
                 </Routes>
               </Col>
