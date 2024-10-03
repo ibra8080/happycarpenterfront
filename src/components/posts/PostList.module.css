@@ -25,6 +25,10 @@
   object-fit: cover;
 }
 
+.postContent {
+  flex: 1;
+}
+
 .postHeader {
   display: flex;
   justify-content: space-between;
@@ -76,23 +80,29 @@
   color: var(--primary-color);
 }
 
+.readMoreContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
 .readMoreLink {
   display: inline-flex;
   align-items: center;
   color: var(--secondary-color);
   text-decoration: none;
-  font-weight: bold;
+  font-weight: normal;
+  font-size: 0.9rem;
   transition: color 0.3s ease;
 }
 
 .readMoreLink:hover {
   color: var(--primary-color);
-  text-decoration: underline;
 }
 
 .readMoreLink svg {
   margin-left: 2px;
-  font-size: 0.8em;
+  font-size: 0.7em;
 }
 
 .loadingSpinner {

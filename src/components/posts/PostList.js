@@ -94,30 +94,34 @@ const PostList = () => {
             </div>
           )}
           <Card.Body>
-            <div className={styles.postHeader}>
-              <Card.Title>{post.title}</Card.Title>
-              <div className={styles.postMeta}>
-                <span className={styles.postAuthor}>{post.owner}</span>
-                <span className={styles.postDate}>{formatDate(post.created_at)}</span>
+            <div className={styles.postContent}>
+              <div className={styles.postHeader}>
+                <Card.Title>{post.title}</Card.Title>
+                <div className={styles.postMeta}>
+                  <span className={styles.postAuthor}>{post.owner}</span>
+                  <span className={styles.postDate}>{formatDate(post.created_at)}</span>
+                </div>
               </div>
+              <div className={styles.postStats}>
+                <span 
+                  className={styles.postStat} 
+                  onClick={() => handleLike(post.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <FaHeart className={likedPosts[post.id] ? styles.likedIcon : styles.icon} /> 
+                  {post.likes_count || 0}
+                </span>
+                <Link to={`/posts/${post.id}`} className={styles.postStat}>
+                  <FaComment className={styles.icon} /> {post.comments_count || 0}
+                </Link>
+              </div>
+              <Card.Text>{post.content.substring(0, 100)}...</Card.Text>
             </div>
-            <div className={styles.postStats}>
-              <span 
-                className={styles.postStat} 
-                onClick={() => handleLike(post.id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <FaHeart className={likedPosts[post.id] ? styles.likedIcon : styles.icon} /> 
-                {post.likes_count || 0}
-              </span>
-              <Link to={`/posts/${post.id}`} className={styles.postStat}>
-                <FaComment className={styles.icon} /> {post.comments_count || 0}
+            <div className={styles.readMoreContainer}>
+              <Link to={`/posts/${post.id}`} className={styles.readMoreLink}>
+                More <FaChevronRight /><FaChevronRight />
               </Link>
             </div>
-            <Card.Text>{post.content.substring(0, 100)}...</Card.Text>
-            <Link to={`/posts/${post.id}`} className={styles.readMoreLink}>
-              More <FaChevronRight /><FaChevronRight />
-            </Link>
           </Card.Body>
         </Card>
       ))}
