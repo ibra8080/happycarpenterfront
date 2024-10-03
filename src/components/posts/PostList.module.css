@@ -34,3 +34,11 @@
   align-self: flex-start;
   margin-top: 10px;
 }
+
+.loadingSpinner {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+  color: var(--secondary-color);
+}
+

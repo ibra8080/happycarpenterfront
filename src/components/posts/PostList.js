@@ -25,7 +25,7 @@ const PostList = () => {
     fetchPosts();
   }, []);
 
-  if (loading) return <div>Loading posts...</div>;
+  if (loading) return <div className={styles.loadingSpinner}>Loading posts...</div>;
   if (error) return <div>{error}</div>;
 
   return (
@@ -40,7 +40,9 @@ const PostList = () => {
             <Card.Text>{post.content.substring(0, 100)}...</Card.Text>
             <div className={styles.postMeta}>
               <span><FaHeart className={styles.icon} /> {post.likes_count || 0}</span>
-              <span><FaComment className={styles.icon} /> {post.comments_count || 0}</span>
+              <Link to={`/posts/${post.id}`}>
+                <FaComment className={styles.icon} /> {post.comments_count || 0}
+              </Link>
             </div>
             <Link to={`/posts/${post.id}`}>
               <Button variant="primary">Read More</Button>
