@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Card, Button, Form, Alert } from 'react-bootstrap';
-import { FaHeart, FaComment, FaArrowLeft } from 'react-icons/fa';
+import { FaHeart, FaComment, FaArrowLeft, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
+import CommentList from '../comments/CommentList'; 
 import styles from './PostDetail.module.css';
 
 const PostDetail = ({ user }) => {
@@ -17,6 +18,9 @@ const PostDetail = ({ user }) => {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeError, setLikeError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
+  const [editedContent, setEditedContent] = useState('');
 
   useEffect(() => {
     const fetchPostAndComments = async () => {
@@ -74,7 +78,6 @@ const PostDetail = ({ user }) => {
     }
   };
 
-
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!user) {
@@ -114,6 +117,44 @@ const PostDetail = ({ user }) => {
     return new Date(dateString).toLocaleString(undefined, options);
   };
 
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditedTitle(post.title);
+    setEditedContent(post.content);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const response = await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/${id}/`, 
+        { title: editedTitle, content: editedContent },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setPost(response.data);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating post:', error);
+      setError('Failed to update post. Please try again.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        await axios.delete(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/${id}/`, 
+          { headers: { Authorization: `Bearer ${user.token}` } }
+        );
+        navigate('/');
+      } catch (error) {
+        console.error('Error deleting post:', error);
+        setError('Failed to delete post. Please try again.');
+      }
+    }
+  };
+
   if (loading) return <div className={styles.loadingSpinner}>Loading post...</div>;
   if (error) return <Alert variant="danger">{error}</Alert>;
   if (!post) return <Alert variant="warning">Post not found.</Alert>;
@@ -128,18 +169,50 @@ const PostDetail = ({ user }) => {
           <Card.Img variant="top" src={post.image} alt={post.title} className={styles.postImage} />
         )}
         <Card.Body>
-          <Card.Title>{post.title}</Card.Title>
-          <Card.Text>{post.content}</Card.Text>
-          <div className={styles.postMeta}>
-            <Button 
-              variant={liked ? "danger" : "outline-danger"} 
-              onClick={handleLike}
-            >
-              <FaHeart /> {post.likes_count || 0}
-            </Button>
-            <span><FaComment className={styles.icon} /> {comments.length}</span>
-          </div>
-          {likeError && <Alert variant="danger">{likeError}</Alert>}
+          {isEditing ? (
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  placeholder="Edit title"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  placeholder="Edit content"
+                />
+              </Form.Group>
+              <Button variant="primary" onClick={handleSaveEdit}>Save</Button>
+              <Button variant="secondary" onClick={handleCancelEdit} className="ml-2">Cancel</Button>
+            </Form>
+          ) : (
+            <>
+              <Card.Title>{post.title}</Card.Title>
+              <Card.Text>{post.content}</Card.Text>
+              {user && user.username === post.owner && (
+                <div className={styles.postActions}>
+                  <Button variant="outline-primary" onClick={handleEdit}><FaEdit /> Edit</Button>
+                  <Button variant="outline-danger" onClick={handleDelete} className="ml-2"><FaTrash /> Delete</Button>
+                </div>
+              )}
+              <div className={styles.postMeta}>
+                <Button 
+                  variant={liked ? "danger" : "outline-danger"} 
+                  onClick={handleLike}
+                >
+                  <FaHeart /> {post.likes_count || 0}
+                </Button>
+                <span><FaComment className={styles.icon} /> {comments.length}</span>
+              </div>
+              {likeError && <Alert variant="danger">{likeError}</Alert>}
+            </>
+          )}
         </Card.Body>
       </Card>
 
@@ -168,20 +241,12 @@ const PostDetail = ({ user }) => {
           </Alert>
         )}
         
-        {comments.length > 0 ? (
-          comments.map(comment => (
-            <Card key={comment.id} className={styles.commentCard}>
-              <Card.Body>
-                <Card.Text>{comment.content}</Card.Text>
-                <Card.Subtitle className="mb-2 text-muted">
-                  By {comment.owner || 'Unknown user'} on {formatDate(comment.created_at)}
-                </Card.Subtitle>
-              </Card.Body>
-            </Card>
-          ))
-        ) : (
-          <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
-        )}
+        <CommentList 
+          comments={comments}
+          setComments={setComments}
+          user={user}
+          postId={id}
+        />
       </div>
     </div>
   );

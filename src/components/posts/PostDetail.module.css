@@ -57,3 +57,11 @@
   font-size: 18px;
   color: var(--secondary-color);
 }
+
+.postActions {
+  margin-bottom: 15px;
+}
+
+.postActions button {
+  margin-right: 10px;
+}
