@@ -13,8 +13,6 @@ import RightSidebar from './components/common/RightSidebar';
 import authService from './services/authService';
 import styles from './App.module.css';
 
-// ... other imports and code ...
-
 function App() {
   const [user, setUser] = useState(null);
 
@@ -47,7 +45,7 @@ function App() {
               </Col>
               <Col md={6} className={styles.mainContent}>
                 <Routes>
-                  <Route path="/" element={<PostList />} />
+                  <Route path="/" element={<PostList user={user} />} />
                   <Route 
                     path="/login" 
                     element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} 
@@ -60,7 +58,6 @@ function App() {
                     path="/create-post" 
                     element={user ? <PostForm /> : <Navigate to="/login" />} 
                   />
-                  {/* Update the PostDetail route to pass the user prop */}
                   <Route path="/posts/:id" element={<PostDetail user={user} />} />
                 </Routes>
               </Col>
