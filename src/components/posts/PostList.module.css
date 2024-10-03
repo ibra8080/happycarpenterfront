@@ -7,32 +7,92 @@
   width: 100%;
   margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.postImageContainer {
+  position: relative;
+  padding-top: 100%; /* This creates a 1:1 aspect ratio */
+  overflow: hidden;
 }
 
 .postImage {
-  height: 200px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+
+.postHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
 }
 
 .postMeta {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.postAuthor {
+  font-weight: bold;
+}
+
+.postDate {
+  font-style: italic;
+}
+
+.postStats {
+  display: flex;
   margin-bottom: 10px;
+}
+
+.postStat {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  color: #666;
+  text-decoration: none;
+}
+
+.postStat:hover {
+  color: var(--primary-color);
 }
 
 .icon {
   margin-right: 5px;
+}
+
+.likedIcon {
+  margin-right: 5px;
+  color: var(--primary-color);
+}
+
+.readMoreLink {
+  display: inline-flex;
+  align-items: center;
   color: var(--secondary-color);
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
 }
 
-.postCard .card-body {
-  display: flex;
-  flex-direction: column;
+.readMoreLink:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
 }
 
-.postCard .btn {
-  align-self: flex-start;
-  margin-top: 10px;
+.readMoreLink svg {
+  margin-left: 2px;
+  font-size: 0.8em;
 }
 
 .loadingSpinner {
@@ -41,4 +101,3 @@
   font-size: 18px;
   color: var(--secondary-color);
 }
-

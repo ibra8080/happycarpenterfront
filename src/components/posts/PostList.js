@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaHeart, FaComment } from 'react-icons/fa';
+import { FaHeart, FaComment, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 import likeService from '../../services/likeService';
 import authService from '../../services/authService';
@@ -40,7 +40,6 @@ const PostList = () => {
             likedPostsData[post.id] = likesResponse.results.some(like => like.owner === user.username);
           } catch (error) {
             console.error(`Error fetching likes for post ${post.id}:`, error);
-            // Continue with other posts even if one fails
           }
         }
         setLikedPosts(likedPostsData);
@@ -54,7 +53,6 @@ const PostList = () => {
 
   const handleLike = async (postId) => {
     if (!user || !user.token) {
-      // Redirect to login or show a message
       console.log('User not authenticated. Please log in to like posts.');
       return;
     }
@@ -75,8 +73,12 @@ const PostList = () => {
       }
     } catch (error) {
       console.error('Error handling like:', error);
-      // Optionally set an error state to display to the user
     }
+  };
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   if (loading) return <div className={styles.loadingSpinner}>Loading posts...</div>;
@@ -87,24 +89,34 @@ const PostList = () => {
       {posts.map(post => (
         <Card key={post.id} className={`${styles.postCard} mb-4`}>
           {post.image && (
-            <Card.Img variant="top" src={post.image} alt={post.title} className={styles.postImage} />
+            <div className={styles.postImageContainer}>
+              <Card.Img variant="top" src={post.image} alt={post.title} className={styles.postImage} />
+            </div>
           )}
           <Card.Body>
-            <Card.Title>{post.title}</Card.Title>
-            <Card.Text>{post.content.substring(0, 100)}...</Card.Text>
-            <div className={styles.postMeta}>
-              <Button 
-                variant={likedPosts[post.id] ? "danger" : "outline-danger"}
+            <div className={styles.postHeader}>
+              <Card.Title>{post.title}</Card.Title>
+              <div className={styles.postMeta}>
+                <span className={styles.postAuthor}>{post.owner}</span>
+                <span className={styles.postDate}>{formatDate(post.created_at)}</span>
+              </div>
+            </div>
+            <div className={styles.postStats}>
+              <span 
+                className={styles.postStat} 
                 onClick={() => handleLike(post.id)}
+                style={{ cursor: 'pointer' }}
               >
-                <FaHeart /> {post.likes_count || 0}
-              </Button>
-              <Link to={`/posts/${post.id}`}>
+                <FaHeart className={likedPosts[post.id] ? styles.likedIcon : styles.icon} /> 
+                {post.likes_count || 0}
+              </span>
+              <Link to={`/posts/${post.id}`} className={styles.postStat}>
                 <FaComment className={styles.icon} /> {post.comments_count || 0}
               </Link>
             </div>
-            <Link to={`/posts/${post.id}`}>
-              <Button variant="primary">Read More</Button>
+            <Card.Text>{post.content.substring(0, 100)}...</Card.Text>
+            <Link to={`/posts/${post.id}`} className={styles.readMoreLink}>
+              More <FaChevronRight /><FaChevronRight />
             </Link>
           </Card.Body>
         </Card>
