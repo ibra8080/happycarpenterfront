@@ -81,3 +81,20 @@
 .authButton:hover {
   background-color: var(--secondary-color) !important;
 }
+
+.actionButton {
+  padding: 5px 10px !important;
+  font-size: 0.8rem !important;
+  color: #D69723 !important;
+  border: none !important;
+}
+
+.actionButton:hover {
+  color: #a60d0d !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.actionButton svg {
+  margin-right: 5px !important;
+}

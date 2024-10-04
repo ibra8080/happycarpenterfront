@@ -4,7 +4,7 @@
   
   .commentItem {
     padding: 15px 0;
-    border-bottom: 1px solid var(--secondary-color);  /* Yellow bottom border */
+    border-bottom: 1px solid var(--secondary-color);
   }
   
   .commentContent {
@@ -34,12 +34,20 @@
   }
   
   .actionButton {
-    margin-left: 10px;
-    padding: 5px 10px;
-    font-size: 0.8rem;
+    margin-left: 10px !important;
+    padding: 5px 10px !important;
+    font-size: 0.8rem !important;
+    color: #D69723 !important;
+    border: none !important;
+  }
+
+  .actionButton:hover {
+    color: #a60d0d !important;
+    background-color: transparent !important;
+    border: none !important;
   }
   
   .actionButton svg {
-    margin-right: 5px;
+    margin-right: 5px !important;
   }
   

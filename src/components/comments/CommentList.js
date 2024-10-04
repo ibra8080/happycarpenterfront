@@ -74,8 +74,8 @@ const CommentList = ({ comments, postId, user, setComments }) => {
               </div>
               {user && user.username === comment.owner && (
                 <div className={styles.commentActions}>
-                  <Button variant="outline-primary" onClick={() => handleEdit(comment)} className={styles.actionButton}><FaEdit /> Edit</Button>
-                  <Button variant="outline-danger" onClick={() => handleDelete(comment.id)} className={styles.actionButton}><FaTrash /> Delete</Button>
+                  <Button variant="outline-primary" onClick={() => handleEdit(comment)} className={styles.actionButton}><FaEdit /> </Button>
+                  <Button variant="outline-danger" onClick={() => handleDelete(comment.id)} className={styles.actionButton}><FaTrash /> </Button>
                 </div>
               )}
             </>
