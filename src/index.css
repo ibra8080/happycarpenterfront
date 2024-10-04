@@ -84,8 +84,3 @@ i:hover {
 .starRating i.active {
   color: #ffd700;
 }
-
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-}
