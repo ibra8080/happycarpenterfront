@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import styles from './UserProfile.module.css';
@@ -20,11 +20,8 @@ const UserProfile = ({ user }) => {
     address: ''
   });
 
-  useEffect(() => {
-    fetchProfile();
-  }, [user]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
+    if (!user) return;
     try {
       const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/${user.id}/`, {
         headers: { Authorization: `Bearer ${user.token}` }
@@ -37,7 +34,11 @@ const UserProfile = ({ user }) => {
       setError('Failed to load profile. Please try again.');
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

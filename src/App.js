@@ -8,6 +8,7 @@ import Register from './components/auth/Register';
 import PostList from './components/posts/PostList';
 import PostDetail from './components/posts/PostDetail';
 import PostForm from './components/posts/PostForm';
+import UserProfile from './components/profiles/UserProfile';
 import Sidebar from './components/common/Sidebar';
 import RightSidebar from './components/common/RightSidebar';
 import authService from './services/authService';
@@ -58,7 +59,12 @@ function App() {
                     path="/create-post" 
                     element={user ? <PostForm /> : <Navigate to="/login" />} 
                   />
-                  <Route path="/posts/:id" element={<PostDetail user={user} />} />
+                  <Route path="/posts/:id" element={<PostDetail user={user} />} 
+                  />
+                  <Route 
+                    path="/profile" 
+                    element={user ? <UserProfile user={user} /> : <Navigate to="/login" />} 
+                  />
                 </Routes>
               </Col>
               <Col md={3} className={styles.rightSidebar}>
