@@ -188,27 +188,34 @@ const PostDetail = ({ user }) => {
                   placeholder="Edit content"
                 />
               </Form.Group>
-              <Button variant="primary" onClick={handleSaveEdit}>Save</Button>
-              <Button variant="secondary" onClick={handleCancelEdit} className="ml-2">Cancel</Button>
+              <Button variant="primary" onClick={handleSaveEdit} className={styles.actionButton}>Save</Button>
+              <Button variant="secondary" onClick={handleCancelEdit} className={`${styles.actionButton} ml-2`}>Cancel</Button>
             </Form>
           ) : (
             <>
               <Card.Title>{post.title}</Card.Title>
               <Card.Text>{post.content}</Card.Text>
-              {user && user.username === post.owner && (
-                <div className={styles.postActions}>
-                  <Button variant="outline-primary" onClick={handleEdit}><FaEdit /> Edit</Button>
-                  <Button variant="outline-danger" onClick={handleDelete} className="ml-2"><FaTrash /> Delete</Button>
-                </div>
-              )}
-              <div className={styles.postMeta}>
+              <div className={styles.postActions}>
                 <Button 
                   variant={liked ? "danger" : "outline-danger"} 
                   onClick={handleLike}
+                  className={styles.actionButton}
                 >
                   <FaHeart /> {post.likes_count || 0}
                 </Button>
-                <span><FaComment className={styles.icon} /> {comments.length}</span>
+                <Button variant="outline-secondary" className={styles.actionButton}>
+                  <FaComment /> {comments.length}
+                </Button>
+                {user && user.username === post.owner && (
+                  <>
+                    <Button variant="outline-primary" onClick={handleEdit} className={styles.actionButton}>
+                      <FaEdit /> Edit
+                    </Button>
+                    <Button variant="outline-danger" onClick={handleDelete} className={styles.actionButton}>
+                      <FaTrash /> Delete
+                    </Button>
+                  </>
+                )}
               </div>
               {likeError && <Alert variant="danger">{likeError}</Alert>}
             </>
@@ -217,7 +224,7 @@ const PostDetail = ({ user }) => {
       </Card>
 
       <div className={styles.commentsSection}>
-        <h3>Comments</h3>
+        <h4 className={styles.commentsTitle}>Comments</h4>
         {user ? (
           <Form onSubmit={handleAddComment}>
             <Form.Group className="mb-3">
@@ -231,8 +238,11 @@ const PostDetail = ({ user }) => {
               />
             </Form.Group>
             {commentError && <Alert variant="danger">{commentError}</Alert>}
-            <Button variant="primary" type="submit" disabled={submittingComment}>
-              {submittingComment ? 'Posting...' : 'Post Comment'}
+            <Button 
+              type="submit"
+              className={styles.authButton}
+            >
+              {submittingComment ? 'Adding...' : 'Add Comment'}
             </Button>
           </Form>
         ) : (
@@ -246,6 +256,7 @@ const PostDetail = ({ user }) => {
           setComments={setComments}
           user={user}
           postId={id}
+          formatDate={formatDate}
         />
       </div>
     </div>

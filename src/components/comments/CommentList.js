@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Button, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import styles from './CommentList.module.css';
@@ -51,37 +51,36 @@ const CommentList = ({ comments, postId, user, setComments }) => {
   return (
     <div className={styles.commentList}>
       {comments.map(comment => (
-        <Card key={comment.id} className={styles.commentCard}>
-          <Card.Body>
-            {editingCommentId === comment.id ? (
-              <Form>
-                <Form.Group>
-                  <Form.Control 
-                    as="textarea" 
-                    rows={3} 
-                    value={editedContent} 
-                    onChange={(e) => setEditedContent(e.target.value)} 
-                  />
-                </Form.Group>
-                <Button variant="primary" onClick={() => handleSaveEdit(comment.id)}>Save</Button>
-                <Button variant="secondary" onClick={handleCancelEdit}>Cancel</Button>
-              </Form>
-            ) : (
-              <>
-                <Card.Text>{comment.content}</Card.Text>
-                <Card.Subtitle className="mb-2 text-muted">
-                  By {comment.owner} on {new Date(comment.created_at).toLocaleString()}
-                </Card.Subtitle>
-                {user && user.username === comment.owner && (
-                  <div>
-                    <Button variant="outline-primary" onClick={() => handleEdit(comment)}><FaEdit /> Edit</Button>
-                    <Button variant="outline-danger" onClick={() => handleDelete(comment.id)}><FaTrash /> Delete</Button>
-                  </div>
-                )}
-              </>
-            )}
-          </Card.Body>
-        </Card>
+        <div key={comment.id} className={styles.commentItem}>
+          {editingCommentId === comment.id ? (
+            <Form>
+              <Form.Group>
+                <Form.Control 
+                  as="textarea" 
+                  rows={3} 
+                  value={editedContent} 
+                  onChange={(e) => setEditedContent(e.target.value)} 
+                />
+              </Form.Group>
+              <Button variant="primary" onClick={() => handleSaveEdit(comment.id)} className={styles.actionButton}>Save</Button>
+              <Button variant="secondary" onClick={handleCancelEdit} className={styles.actionButton}>Cancel</Button>
+            </Form>
+          ) : (
+            <>
+              <p className={styles.commentContent}>{comment.content}</p>
+              <div className={styles.commentMeta}>
+                <span className={styles.commentAuthor}>{comment.owner}</span>
+                <span className={styles.commentDate}>{new Date(comment.created_at).toLocaleString()}</span>
+              </div>
+              {user && user.username === comment.owner && (
+                <div className={styles.commentActions}>
+                  <Button variant="outline-primary" onClick={() => handleEdit(comment)} className={styles.actionButton}><FaEdit /> Edit</Button>
+                  <Button variant="outline-danger" onClick={() => handleDelete(comment.id)} className={styles.actionButton}><FaTrash /> Delete</Button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       ))}
     </div>
   );
