@@ -59,8 +59,7 @@ function App() {
                     path="/create-post" 
                     element={user ? <PostForm /> : <Navigate to="/login" />} 
                   />
-                  <Route path="/posts/:id" element={<PostDetail user={user} />} 
-                  />
+                  <Route path="/posts/:id" element={<PostDetail user={user} />} />
                   <Route 
                     path="/profile" 
                     element={user ? <UserProfile user={user} /> : <Navigate to="/login" />} 

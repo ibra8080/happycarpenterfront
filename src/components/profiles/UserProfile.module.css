@@ -12,7 +12,7 @@
   margin-bottom: 20px;
 }
 
-.editButton, .submitButton, .cancelButton, .followButton {
+.editButton, .submitButton, .cancelButton {
   margin-top: 10px;
 }
 
@@ -32,13 +32,32 @@
   margin-left: 10px;
 }
 
-.followButton {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  margin-left: 10px;
+.currentImage {
+  margin-bottom: 10px;
 }
 
-.followButton:hover {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+.currentImage img {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+Form {
+  margin-top: 20px;
+}
+
+Form.Group {
+  margin-bottom: 15px;
+}
+
+Form.Label {
+  font-weight: bold;
+}
+
+Form.Control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
 }
