@@ -64,8 +64,10 @@ const PostList = () => {
   }, [page, hasMore, fetchLikedPosts]);
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    setPage(1);
+    setPosts([]);
+    setHasMore(true);
+  }, []);
 
   const handleLike = async (postId) => {
     if (!user || !user.token) {
