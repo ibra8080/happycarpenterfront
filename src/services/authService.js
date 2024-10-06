@@ -36,20 +36,9 @@ const authService = {
     }
   },
 
-  logout: async () => {
-    try {
-      const currentUser = authService.getCurrentUser();
-      if (currentUser && currentUser.token) {
-        await axios.post(`${API_URL}dj-rest-auth/logout/`, null, {
-          headers: { Authorization: `Bearer ${currentUser.token}` }
-        });
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      localStorage.removeItem('user');
-      authService.setAuthHeader(null);
-    }
+  logout: () => {
+    localStorage.removeItem('user');
+    authService.setAuthHeader(null);
   },
 
   getCurrentUser: () => {
@@ -57,7 +46,6 @@ const authService = {
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        authService.setAuthHeader(user.token);
         return user;
       } catch (e) {
         console.error('Error parsing user data:', e);
@@ -65,6 +53,19 @@ const authService = {
       }
     }
     return null;
+  },
+
+  isTokenExpired: (token) => {
+    if (!token) return true;
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    const { exp } = JSON.parse(jsonPayload);
+    const currentTime = Date.now() / 1000;
+    return exp < currentTime;
   },
 
   refreshToken: async () => {
@@ -82,11 +83,9 @@ const authService = {
         }
       } catch (error) {
         console.error('Token refresh failed:', error);
-        await authService.logout();
-        throw new Error('Session expired. Please log in again.');
+        throw error;
       }
     }
-    await authService.logout();
     throw new Error('No refresh token available');
   },
 
@@ -108,13 +107,18 @@ const authService = {
   initializeAuth: async () => {
     const currentUser = authService.getCurrentUser();
     if (currentUser && currentUser.token) {
-      try {
-        await authService.refreshToken();
-        return currentUser;
-      } catch (error) {
-        console.error('Failed to initialize auth:', error);
-        await authService.logout();
+      if (authService.isTokenExpired(currentUser.token)) {
+        try {
+          await authService.refreshToken();
+        } catch (error) {
+          console.error('Failed to refresh token:', error);
+          authService.logout();
+          return null;
+        }
+      } else {
+        authService.setAuthHeader(currentUser.token);
       }
+      return currentUser;
     }
     return null;
   }
