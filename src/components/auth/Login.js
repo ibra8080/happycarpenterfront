@@ -6,6 +6,7 @@ import styles from './Auth.module.css';
 const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (event) => {
@@ -16,12 +17,26 @@ const Login = ({ onLogin }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+    setIsLoading(true);
+
     try {
       const userData = await authService.login(credentials.username, credentials.password);
-      onLogin(userData);  // Call the onLogin prop with the user data
-      navigate('/');
+      if (userData) {
+        onLogin(userData);
+        navigate('/');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } catch (err) {
-      setError('Failed to log in. Please check your credentials.');
+      console.error('Login error:', err);
+      if (err.response && err.response.data) {
+        // Handle specific error messages from the server
+        setError(err.response.data.non_field_errors?.[0] || 'An error occurred. Please try again.');
+      } else {
+        setError('Network error. Please check your connection and try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -38,6 +53,7 @@ const Login = ({ onLogin }) => {
           placeholder="Username"
           required
           className={styles.authInput}
+          disabled={isLoading}
         />
         <input
           type="password"
@@ -47,8 +63,15 @@ const Login = ({ onLogin }) => {
           placeholder="Password"
           required
           className={styles.authInput}
+          disabled={isLoading}
         />
-        <button type="submit" className={styles.authButton}>Login</button>
+        <button 
+          type="submit" 
+          className={styles.authButton}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
     </div>
   );

@@ -41,3 +41,8 @@
     border-radius: 4px;
   }
   
+  .authInput:disabled,
+  .authButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
