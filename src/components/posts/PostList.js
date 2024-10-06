@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaHeart, FaComment, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 import likeService from '../../services/likeService';
@@ -16,7 +16,36 @@ const PostList = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-  const user = authService.getCurrentUser();
+  const [user, setUser] = useState(authService.getCurrentUser());
+  const navigate = useNavigate();
+
+  const refreshTokenAndRetry = useCallback(async (apiCall) => {
+    try {
+      await authService.refreshToken();
+      const updatedUser = authService.getCurrentUser();
+      setUser(updatedUser);
+      return await apiCall();
+    } catch (refreshError) {
+      console.error('Token refresh failed:', refreshError);
+      setError('Your session has expired. Please log in again.');
+      await authService.logout();
+      navigate('/login');
+      throw refreshError;
+    }
+  }, [navigate]);
+
+  const handleAuthError = useCallback(async (error, apiCall) => {
+    if (error.response && error.response.status === 401) {
+      try {
+        return await refreshTokenAndRetry(apiCall);
+      } catch (refreshError) {
+        setError('Your session has expired. Please log in again.');
+        navigate('/login');
+        throw refreshError;
+      }
+    }
+    throw error;
+  }, [refreshTokenAndRetry, navigate]);
 
   const fetchLikedPosts = useCallback(async (newPosts) => {
     if (!user || !user.token) return;
@@ -28,7 +57,7 @@ const PostList = () => {
             const likesResponse = await likeService.getLikes(post.id, user.token);
             newLikedPosts[post.id] = likesResponse.results.some(like => like.owner === user.username);
           } catch (error) {
-            console.error(`Error fetching likes for post ${post.id}:`, error);
+            await handleAuthError(error, () => likeService.getLikes(post.id, user.token));
           }
         } else {
           newLikedPosts[post.id] = likedPosts[post.id];
@@ -39,13 +68,26 @@ const PostList = () => {
     } catch (error) {
       console.error('Error fetching liked posts:', error);
     }
-  }, [user, likedPosts]);
+  }, [user, likedPosts, handleAuthError]);
 
   const fetchPosts = useCallback(async () => {
     if (!hasMore) return;
     try {
       setLoading(true);
-      const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?page=${page}`);
+      const apiCall = async () => {
+        const currentUser = authService.getCurrentUser();
+        const headers = currentUser ? { Authorization: `Bearer ${currentUser.token}` } : {};
+        const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?page=${page}`, { headers });
+        return response;
+      };
+
+      let response;
+      try {
+        response = await apiCall();
+      } catch (error) {
+        response = await handleAuthError(error, apiCall);
+      }
+
       const newPosts = response.data.results;
       if (newPosts.length === 0) {
         setHasMore(false);
@@ -59,7 +101,10 @@ const PostList = () => {
       setError(null);
     } catch (err) {
       console.error('Error fetching posts:', err);
-      if (err.response && err.response.status === 404) {
+      if (err.message === 'Session expired. Please log in again.') {
+        setError(err.message);
+        navigate('/login');
+      } else if (err.response && err.response.status === 404) {
         setHasMore(false);
         if (page === 1) {
           setError('No posts available at the moment.');
@@ -70,7 +115,7 @@ const PostList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, hasMore, fetchLikedPosts]);
+  }, [page, hasMore, fetchLikedPosts, handleAuthError, navigate]);
 
   useEffect(() => {
     fetchPosts();
@@ -78,11 +123,11 @@ const PostList = () => {
 
   const handleLike = useCallback(async (postId) => {
     if (!user || !user.token) {
-      console.log('User not authenticated. Please log in to like posts.');
+      navigate('/login');
       return;
     }
 
-    try {
+    const likeApiCall = async () => {
       if (likedPosts[postId]) {
         await likeService.unlikePost(postId, user.token);
         setLikedPosts(prev => ({ ...prev, [postId]: false }));
@@ -96,10 +141,14 @@ const PostList = () => {
           post.id === postId ? { ...post, likes_count: post.likes_count + 1 } : post
         ));
       }
+    };
+
+    try {
+      await likeApiCall();
     } catch (error) {
-      console.error('Error handling like:', error);
+      await handleAuthError(error, likeApiCall);
     }
-  }, [user, likedPosts]);
+  }, [user, likedPosts, navigate, handleAuthError]);
 
   const formatDate = useCallback((dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };

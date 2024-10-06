@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
@@ -19,17 +19,28 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshUserData = useCallback(async () => {
+    try {
+      const refreshedUser = await authService.refreshUserData();
+      setUser(refreshedUser);
+      authService.setAuthHeader(refreshedUser.token);
+      return refreshedUser;
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+      await authService.logout();
+      setUser(null);
+      throw error;
+    }
+  }, []);
+
   useEffect(() => {
     const initializeAuth = async () => {
       const currentUser = authService.getCurrentUser();
       if (currentUser) {
         try {
-          const refreshedUser = await authService.refreshUserData();
-          setUser(refreshedUser);
-          authService.setAuthHeader(refreshedUser.token);
+          await refreshUserData();
         } catch (error) {
-          console.error('Failed to refresh user data:', error);
-          await authService.logout();
+          console.error('Failed to initialize auth:', error);
         }
       }
       setLoading(false);
@@ -42,17 +53,14 @@ function App() {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
-            const newToken = await authService.refreshToken();
-            if (newToken) {
-              originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-              return axios(originalRequest);
-            }
+            const refreshedUser = await refreshUserData();
+            originalRequest.headers['Authorization'] = `Bearer ${refreshedUser.token}`;
+            return axios(originalRequest);
           } catch (refreshError) {
             console.error('Token refresh failed:', refreshError);
-            await authService.logout();
             setUser(null);
             return Promise.reject(refreshError);
           }
@@ -65,7 +73,7 @@ function App() {
     return () => {
       axios.interceptors.response.eject(interceptor);
     };
-  }, []);
+  }, [refreshUserData]);
 
   const handleLogin = async (userData) => {
     setUser(userData);

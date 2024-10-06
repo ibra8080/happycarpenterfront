@@ -26,6 +26,7 @@ const authService = {
         };
         authService.setAuthHeader(response.data.access);
         await authService.fetchUserProfile(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
         return userData;
       }
       return null;
@@ -35,35 +36,19 @@ const authService = {
     }
   },
 
-  register: async (userData) => {
-    try {
-      const response = await axios.post(`${API_URL}dj-rest-auth/registration/`, userData);
-      if (response.data.access) {
-        const newUserData = {
-          ...response.data.user,
-          id: response.data.user.pk,
-          token: response.data.access,
-          refresh: response.data.refresh,
-          username: userData.username
-        };
-        authService.setAuthHeader(response.data.access);
-        await authService.fetchUserProfile(newUserData);
-        return newUserData;
-      }
-      return null;
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error.response ? error.response.data : new Error('Network error');
-    }
-  },
-
   logout: async () => {
     try {
-      await axios.post(`${API_URL}dj-rest-auth/logout/`);
-      localStorage.removeItem('user');
-      authService.setAuthHeader(null);
+      const currentUser = authService.getCurrentUser();
+      if (currentUser && currentUser.token) {
+        await axios.post(`${API_URL}dj-rest-auth/logout/`, null, {
+          headers: { Authorization: `Bearer ${currentUser.token}` }
+        });
+      }
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('user');
+      authService.setAuthHeader(null);
     }
   },
 
@@ -71,7 +56,9 @@ const authService = {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
-        return JSON.parse(userStr);
+        const user = JSON.parse(userStr);
+        authService.setAuthHeader(user.token);
+        return user;
       } catch (e) {
         console.error('Error parsing user data:', e);
         return null;
@@ -94,12 +81,13 @@ const authService = {
           return response.data.access;
         }
       } catch (error) {
-        console.error('Token refresh error:', error);
+        console.error('Token refresh failed:', error);
         await authService.logout();
         throw new Error('Session expired. Please log in again.');
       }
     }
-    return null;
+    await authService.logout();
+    throw new Error('No refresh token available');
   },
 
   fetchUserProfile: async (userData) => {
@@ -117,15 +105,15 @@ const authService = {
     }
   },
 
-  refreshUserData: async () => {
+  initializeAuth: async () => {
     const currentUser = authService.getCurrentUser();
     if (currentUser && currentUser.token) {
       try {
         await authService.refreshToken();
-        return await authService.fetchUserProfile(currentUser);
-      } catch (error) {
-        console.error('Error refreshing user data:', error);
         return currentUser;
+      } catch (error) {
+        console.error('Failed to initialize auth:', error);
+        await authService.logout();
       }
     }
     return null;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Card, Button, Form, Alert } from 'react-bootstrap';
+import { Card, Button, Form, Alert, Modal } from 'react-bootstrap';
 import { FaHeart, FaComment, FaArrowLeft, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import CommentList from '../comments/CommentList'; 
@@ -21,6 +21,7 @@ const PostDetail = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [editedContent, setEditedContent] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchPostAndComments = async () => {
@@ -142,16 +143,15 @@ const PostDetail = ({ user }) => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
-      try {
-        await axios.delete(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/${id}/`, 
-          { headers: { Authorization: `Bearer ${user.token}` } }
-        );
-        navigate('/');
-      } catch (error) {
-        console.error('Error deleting post:', error);
-        setError('Failed to delete post. Please try again.');
-      }
+    setShowDeleteModal(false);
+    try {
+      await axios.delete(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/${id}/`, 
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      setError('Failed to delete post. Please try again.');
     }
   };
 
@@ -211,7 +211,7 @@ const PostDetail = ({ user }) => {
                     <Button variant="outline-primary" onClick={handleEdit} className={styles.actionButton}>
                       <FaEdit /> Edit
                     </Button>
-                    <Button variant="outline-danger" onClick={handleDelete} className={styles.actionButton}>
+                    <Button variant="outline-danger" onClick={() => setShowDeleteModal(true)} className={styles.actionButton}>
                       <FaTrash /> Delete
                     </Button>
                   </>
@@ -259,6 +259,21 @@ const PostDetail = ({ user }) => {
           formatDate={formatDate}
         />
       </div>
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this post? This action cannot be undone.</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
