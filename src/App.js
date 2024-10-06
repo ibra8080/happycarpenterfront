@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Container, Row, Col } from 'react-bootstrap';
+import axios from 'axios';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import Login from './components/auth/Login';
@@ -16,23 +17,69 @@ import styles from './App.module.css';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-    }
+    const initializeAuth = async () => {
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        try {
+          const refreshedUser = await authService.refreshUserData();
+          setUser(refreshedUser);
+          authService.setAuthHeader(refreshedUser.token);
+        } catch (error) {
+          console.error('Failed to refresh user data:', error);
+          await authService.logout();
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
+
+    // Set up axios interceptor
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        if (error.response.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            const newToken = await authService.refreshToken();
+            if (newToken) {
+              originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+              return axios(originalRequest);
+            }
+          } catch (refreshError) {
+            console.error('Token refresh failed:', refreshError);
+            await authService.logout();
+            setUser(null);
+            return Promise.reject(refreshError);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    // Clean up function
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
   }, []);
 
-  const handleLogin = (userData) => {
-    console.log('Login/Register data:', userData);  
+  const handleLogin = async (userData) => {
     setUser(userData);
+    authService.setAuthHeader(userData.token);
   };
 
-  const handleLogout = () => {
-    authService.logout();
+  const handleLogout = async () => {
+    await authService.logout();
     setUser(null);
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Router>
