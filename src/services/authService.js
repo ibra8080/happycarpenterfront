@@ -35,6 +35,28 @@ const authService = {
     }
   },
 
+  register: async (userData) => {
+    try {
+      const response = await axios.post(`${API_URL}dj-rest-auth/registration/`, userData);
+      if (response.data.access) {
+        const newUserData = {
+          ...response.data.user,
+          id: response.data.user.pk,
+          token: response.data.access,
+          refresh: response.data.refresh,
+          username: userData.username
+        };
+        authService.setAuthHeader(response.data.access);
+        await authService.fetchUserProfile(newUserData);
+        return newUserData;
+      }
+      return null;
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error.response ? error.response.data : new Error('Network error');
+    }
+  },
+
   logout: async () => {
     try {
       await axios.post(`${API_URL}dj-rest-auth/logout/`);

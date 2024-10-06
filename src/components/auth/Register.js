@@ -7,11 +7,12 @@ const Register = ({ onRegister }) => {
   const [userData, setUserData] = useState({
     username: '',
     email: '',
-    password: '',
+    password1: '',
     password2: ''
   });
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (event) => {
@@ -23,9 +24,11 @@ const Register = ({ onRegister }) => {
     event.preventDefault();
     setError('');
     setSuccessMessage('');
+    setIsLoading(true);
 
-    if (userData.password !== userData.password2) {
+    if (userData.password1 !== userData.password2) {
       setError("Passwords don't match");
+      setIsLoading(false);
       return;
     }
 
@@ -34,23 +37,32 @@ const Register = ({ onRegister }) => {
       console.log('Registration successful:', response);
       setSuccessMessage('Registration successful! Logging you in...');
       
-      // Call onRegister with the user data
-      onRegister(response);
-      
-      // Redirect to home page after a short delay
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
+      // Attempt to log in the user immediately after registration
+      try {
+        const loginData = await authService.login(userData.username, userData.password1);
+        onRegister(loginData);
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
+      } catch (loginErr) {
+        console.error('Auto-login failed:', loginErr);
+        setError('Registration successful, but auto-login failed. Please log in manually.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+      }
     } catch (err) {
       console.error('Registration error:', err);
-      if (typeof err === 'object' && err !== null) {
-        const errorMessages = Object.entries(err)
+      if (err.response && err.response.data) {
+        const errorMessages = Object.entries(err.response.data)
           .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
           .join('\n');
         setError(errorMessages);
       } else {
         setError('An error occurred during registration. Please try again.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };  
 
@@ -68,6 +80,7 @@ const Register = ({ onRegister }) => {
           placeholder="Username"
           required
           className={styles.authInput}
+          disabled={isLoading}
         />
         <input
           type="email"
@@ -77,15 +90,17 @@ const Register = ({ onRegister }) => {
           placeholder="Email"
           required
           className={styles.authInput}
+          disabled={isLoading}
         />
         <input
           type="password"
-          name="password"
-          value={userData.password}
+          name="password1"
+          value={userData.password1}
           onChange={handleInputChange}
           placeholder="Password"
           required
           className={styles.authInput}
+          disabled={isLoading}
         />
         <input
           type="password"
@@ -95,8 +110,15 @@ const Register = ({ onRegister }) => {
           placeholder="Confirm Password"
           required
           className={styles.authInput}
+          disabled={isLoading}
         />
-        <button type="submit" className={styles.authButton}>Register</button>
+        <button 
+          type="submit" 
+          className={styles.authButton}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Registering...' : 'Register'}
+        </button>
       </form>
     </div>
   );
