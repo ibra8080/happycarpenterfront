@@ -53,13 +53,13 @@ const Register = ({ onRegister }) => {
       }
     } catch (err) {
       console.error('Registration error:', err);
-      if (err.response && err.response.data) {
-        const errorMessages = Object.entries(err.response.data)
+      if (typeof err === 'object' && err !== null) {
+        const errorMessages = Object.entries(err)
           .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
           .join('\n');
         setError(errorMessages);
       } else {
-        setError('An error occurred during registration. Please try again.');
+        setError(err.toString());
       }
     } finally {
       setIsLoading(false);
@@ -69,7 +69,7 @@ const Register = ({ onRegister }) => {
   return (
     <div className={styles.authContainer}>
       <h2>Register</h2>
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <pre className={styles.error}>{error}</pre>}
       {successMessage && <p className={styles.success}>{successMessage}</p>}
       <form onSubmit={handleSubmit}>
         <input
