@@ -17,19 +17,31 @@
 }
 
 .editButton {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+  background-color: var(--secondary-color) !important;
+  border: none !important;
+}
+
+.editButton:hover {
+  background-color: var(--primary-color) !important;
 }
 
 .submitButton {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+  background-color: var(--secondary-color) !important;
+  border: none !important;
+}
+
+.submitButton:hover {
+  background-color: var(--primary-color) !important;
 }
 
 .cancelButton {
-  background-color: #6c757d;
-  border-color: #6c757d;
+  background-color: #6c757d !important;
+  border: none !important;
   margin-left: 10px;
+}
+
+.cancelButton:hover {
+  background-color: var(--primary-color) !important;
 }
 
 .currentImage {
