@@ -29,11 +29,19 @@ const Login = ({ onLogin }) => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      if (err.response && err.response.data) {
-        // Handle specific error messages from the server
-        setError(err.response.data.non_field_errors?.[0] || 'An error occurred. Please try again.');
+      if (typeof err === 'object' && err !== null) {
+        const errorMessages = Object.entries(err)
+          .map(([key, value]) => {
+            // Remove "non_field_errors: " prefix
+            if (key === 'non_field_errors') {
+              return Array.isArray(value) ? value.join(', ') : value;
+            }
+            return `${key}: ${Array.isArray(value) ? value.join(', ') : value}`;
+          })
+          .join('\n');
+        setError(errorMessages);
       } else {
-        setError('Network error. Please check your connection and try again.');
+        setError(err.toString());
       }
     } finally {
       setIsLoading(false);
@@ -43,7 +51,7 @@ const Login = ({ onLogin }) => {
   return (
     <div className={styles.authContainer}>
       <h2>Login</h2>
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <pre className={styles.error}>{error}</pre>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
