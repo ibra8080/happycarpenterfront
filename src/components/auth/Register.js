@@ -33,24 +33,19 @@ const Register = ({ onRegister }) => {
     }
 
     try {
-      const response = await authService.register(userData);
+      const response = await authService.register(
+        userData.username,
+        userData.email,
+        userData.password1,
+        userData.password2
+      );
       console.log('Registration successful:', response);
       setSuccessMessage('Registration successful! Logging you in...');
       
-      // Attempt to log in the user immediately after registration
-      try {
-        const loginData = await authService.login(userData.username, userData.password1);
-        onRegister(loginData);
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
-      } catch (loginErr) {
-        console.error('Auto-login failed:', loginErr);
-        setError('Registration successful, but auto-login failed. Please log in manually.');
-        setTimeout(() => {
-          navigate('/login');
-        }, 1500);
-      }
+      onRegister(response);
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (err) {
       console.error('Registration error:', err);
       if (typeof err === 'object' && err !== null) {
@@ -64,7 +59,7 @@ const Register = ({ onRegister }) => {
     } finally {
       setIsLoading(false);
     }
-  };  
+  };
 
   return (
     <div className={styles.authContainer}>
