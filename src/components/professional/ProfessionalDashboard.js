@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Nav } from 'react-bootstrap';
+import { Container, Row, Col, Nav, Alert } from 'react-bootstrap';
 import AdvertisementList from './AdvertisementList';
 import ReviewList from './ReviewList';
 import JobOfferList from './JobOfferList';
 
 const ProfessionalDashboard = ({ user }) => {
   const [activeTab, setActiveTab] = useState('advertisements');
+  const [error, setError] = useState(null);
+
+  if (!user || !user.profile || user.profile.user_type !== 'professional') {
+    return <Alert variant="danger">Access denied. This dashboard is for professional users only.</Alert>;
+  }
 
   return (
     <Container>
       <h1>Professional Dashboard</h1>
+      {error && <Alert variant="danger">{error}</Alert>}
       <Nav variant="tabs" defaultActiveKey="advertisements">
         <Nav.Item>
           <Nav.Link eventKey="advertisements" onSelect={() => setActiveTab('advertisements')}>
@@ -29,9 +35,9 @@ const ProfessionalDashboard = ({ user }) => {
       </Nav>
       <Row className="mt-3">
         <Col>
-          {activeTab === 'advertisements' && <AdvertisementList user={user} />}
-          {activeTab === 'reviews' && <ReviewList user={user} />}
-          {activeTab === 'jobOffers' && <JobOfferList user={user} />}
+          {activeTab === 'advertisements' && <AdvertisementList user={user} setError={setError} />}
+          {activeTab === 'reviews' && <ReviewList user={user} setError={setError} />}
+          {activeTab === 'jobOffers' && <JobOfferList user={user} setError={setError} />}
         </Col>
       </Row>
     </Container>
