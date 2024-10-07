@@ -17,7 +17,7 @@ const authService = {
     try {
       const response = await axios.post(`${API_URL}dj-rest-auth/login/`, { username, password });
       if (response.data.access) {
-        const userData = {
+        let userData = {
           ...response.data.user,
           id: response.data.user.pk,
           token: response.data.access,
@@ -25,7 +25,21 @@ const authService = {
           username: username
         };
         authService.setAuthHeader(response.data.access);
-        await authService.fetchUserProfile(userData);
+        
+        // Fetch user profile
+        try {
+          const profileResponse = await axios.get(`${API_URL}profiles/`, {
+            headers: { Authorization: `Bearer ${response.data.access}` }
+          });
+          const userProfile = profileResponse.data.find(profile => profile.owner === username);
+          if (userProfile) {
+            userData.profile = userProfile;
+          }
+        } catch (profileError) {
+          console.error('Error fetching user profile:', profileError);
+        }
+
+        console.log('User data after login:', userData);
         localStorage.setItem('user', JSON.stringify(userData));
         return userData;
       }
