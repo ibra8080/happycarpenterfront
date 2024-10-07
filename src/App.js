@@ -10,6 +10,7 @@ import PostList from './components/posts/PostList';
 import PostDetail from './components/posts/PostDetail';
 import PostForm from './components/posts/PostForm';
 import UserProfile from './components/profiles/UserProfile';
+import ProfessionalDashboard from './components/professional/ProfessionalDashboard';
 import Sidebar from './components/common/Sidebar';
 import RightSidebar from './components/common/RightSidebar';
 import authService from './services/authService';
@@ -18,6 +19,26 @@ import styles from './App.module.css';
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const currentUser = await authService.initializeAuth();
+        console.log('Initialized user in App:', currentUser);
+        setUser(currentUser);
+      } catch (error) {
+        console.error('Failed to initialize auth:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
+  useEffect(() => {
+    console.log('User state updated in App:', user);
+  }, [user]);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -79,6 +100,7 @@ function App() {
     <Router>
       <div className={styles.App}>
         <Header user={user} onLogout={handleLogout} />
+        <Header user={user} onLogout={handleLogout} />
         <main className={styles.Main}>
           <Container fluid>
             <Row>
@@ -104,6 +126,14 @@ function App() {
                   <Route 
                     path="/profile" 
                     element={user ? <UserProfile user={user} /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/professional-dashboard" 
+                    element={
+                      user && user.profile && user.profile.user_type === 'professional' 
+                        ? <ProfessionalDashboard user={user} /> 
+                        : <Navigate to="/" />
+                    } 
                   />
                 </Routes>
               </Col>
