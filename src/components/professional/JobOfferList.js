@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ListGroup, Button } from 'react-bootstrap';
 import axios from 'axios';
 
 const JobOfferList = ({ user }) => {
   const [jobOffers, setJobOffers] = useState([]);
 
-  useEffect(() => {
-    fetchJobOffers();
-  }, []);
-
-  const fetchJobOffers = async () => {
+  const fetchJobOffers = useCallback(async () => {
     try {
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/', {
         headers: { Authorization: `Bearer ${user.token}` }
@@ -18,7 +14,11 @@ const JobOfferList = ({ user }) => {
     } catch (error) {
       console.error('Error fetching job offers:', error);
     }
-  };
+  }, [user.token]);
+
+  useEffect(() => {
+    fetchJobOffers();
+  }, [fetchJobOffers]);
 
   const handleAccept = async (offerId) => {
     try {

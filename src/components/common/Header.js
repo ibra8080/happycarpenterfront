@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaPlusSquare } from 'react-icons/fa';
+import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaPlusSquare, FaBriefcase } from 'react-icons/fa';
 import logo from '../../assets/images/happycarpenterlogo.png';
 import styles from './Header.module.css';
 
 const Header = ({ user, onLogout }) => {
+  console.log('Header user data:', user);
+
   return (
     <Navbar bg="light" expand="lg" className={`${styles.navbar} fixed-top`}>
       <Container>
@@ -24,10 +26,15 @@ const Header = ({ user, onLogout }) => {
             {user ? (
               <>
                 <Nav.Link as={Link} to="/create-post" className={styles.navLink}><FaPlusSquare /> Create Post</Nav.Link>
+                {user.profile && user.profile.user_type === 'professional' && (
+                  <Nav.Link as={Link} to="/professional-dashboard" className={styles.navLink}>
+                    <FaBriefcase /> Professional Dashboard
+                  </Nav.Link>
+                )}
                 <Nav.Link as={Link} to="/profile" className={styles.navLink}>
-                  {user.profile_image && (
+                  {user.profile && user.profile.image && (
                     <img 
-                      src={user.profile_image} 
+                      src={user.profile.image}
                       alt="Profile" 
                       className={styles.profileImage}
                     />
