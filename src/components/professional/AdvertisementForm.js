@@ -28,7 +28,7 @@ const AdvertisementForm = ({ onSubmit, initialData }) => {
 
   return (
     <Form onSubmit={handleSubmit}>
-      <Form.Group>
+      <Form.Group className="mb-3">
         <Form.Label>Title</Form.Label>
         <Form.Control 
           type="text" 
@@ -38,7 +38,7 @@ const AdvertisementForm = ({ onSubmit, initialData }) => {
           required 
         />
       </Form.Group>
-      <Form.Group>
+      <Form.Group className="mb-3">
         <Form.Label>Description</Form.Label>
         <Form.Control 
           as="textarea" 

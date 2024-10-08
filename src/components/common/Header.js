@@ -28,7 +28,7 @@ const Header = ({ user, onLogout }) => {
                 <Nav.Link as={Link} to="/create-post" className={styles.navLink}><FaPlusSquare /> Create Post</Nav.Link>
                 {user.profile && user.profile.user_type === 'professional' && (
                   <Nav.Link as={Link} to="/professional-dashboard" className={styles.navLink}>
-                    <FaBriefcase /> Professional Dashboard
+                    <FaBriefcase /> Pro
                   </Nav.Link>
                 )}
                 <Nav.Link as={Link} to="/profile" className={styles.navLink}>

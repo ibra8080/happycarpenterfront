@@ -16,6 +16,7 @@ const AdvertisementList = ({ user, setError }) => {
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', {
         headers: { Authorization: `Bearer ${user.token}` }
       });
+      console.log('API Response:', response.data); // Log the response for debugging
       if (Array.isArray(response.data)) {
         setAdvertisements(response.data);
       } else if (response.data && Array.isArray(response.data.results)) {
@@ -23,11 +24,13 @@ const AdvertisementList = ({ user, setError }) => {
       } else {
         console.error('Unexpected API response format:', response.data);
         setLocalError('Unexpected data format received from the server.');
+        setAdvertisements([]);
       }
       setError(null);
     } catch (error) {
       console.error('Error fetching advertisements:', error);
       setLocalError('Failed to fetch advertisements. Please try again later.');
+      setAdvertisements([]);
     } finally {
       setLoading(false);
     }
