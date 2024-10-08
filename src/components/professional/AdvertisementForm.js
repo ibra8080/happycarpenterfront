@@ -4,7 +4,9 @@ import { Form, Button } from 'react-bootstrap';
 const AdvertisementForm = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = useState({
     title: '',
-    description: ''
+    description: '',
+    image: null,
+    place: ''
   });
 
   useEffect(() => {
@@ -21,9 +23,20 @@ const AdvertisementForm = ({ onSubmit, initialData }) => {
     }));
   };
 
+  const handleImageChange = (e) => {
+    setFormData(prevData => ({
+      ...prevData,
+      image: e.target.files[0]
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    const formDataToSend = new FormData();
+    for (const key in formData) {
+      formDataToSend.append(key, formData[key]);
+    }
+    onSubmit(formDataToSend);
   };
 
   return (
@@ -47,6 +60,23 @@ const AdvertisementForm = ({ onSubmit, initialData }) => {
           value={formData.description} 
           onChange={handleChange} 
           required 
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Image</Form.Label>
+        <Form.Control 
+          type="file" 
+          name="image" 
+          onChange={handleImageChange} 
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Place</Form.Label>
+        <Form.Control 
+          type="text" 
+          name="place" 
+          value={formData.place} 
+          onChange={handleChange} 
         />
       </Form.Group>
       <Button type="submit">
