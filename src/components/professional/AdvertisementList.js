@@ -16,21 +16,11 @@ const AdvertisementList = ({ user, setError }) => {
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      console.log('API Response:', response.data); // Log the response for debugging
-      if (Array.isArray(response.data)) {
-        setAdvertisements(response.data);
-      } else if (response.data && Array.isArray(response.data.results)) {
-        setAdvertisements(response.data.results);
-      } else {
-        console.error('Unexpected API response format:', response.data);
-        setLocalError('Unexpected data format received from the server.');
-        setAdvertisements([]);
-      }
+      setAdvertisements(response.data);
       setError(null);
     } catch (error) {
       console.error('Error fetching advertisements:', error);
       setLocalError('Failed to fetch advertisements. Please try again later.');
-      setAdvertisements([]);
     } finally {
       setLoading(false);
     }
@@ -64,15 +54,21 @@ const AdvertisementList = ({ user, setError }) => {
     }
   };
 
-  const handleFormSubmit = async (adData) => {
+  const handleFormSubmit = async (formData) => {
     try {
       if (editingAd) {
-        await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/${editingAd.id}/`, adData, {
-          headers: { Authorization: `Bearer ${user.token}` }
+        await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/${editingAd.id}/`, formData, {
+          headers: { 
+            Authorization: `Bearer ${user.token}`,
+            'Content-Type': 'multipart/form-data'
+          }
         });
       } else {
-        await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', adData, {
-          headers: { Authorization: `Bearer ${user.token}` }
+        await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', formData, {
+          headers: { 
+            Authorization: `Bearer ${user.token}`,
+            'Content-Type': 'multipart/form-data'
+          }
         });
       }
       setShowForm(false);
@@ -104,6 +100,8 @@ const AdvertisementList = ({ user, setError }) => {
               <div>
                 <h5>{ad.title}</h5>
                 <p>{ad.description}</p>
+                {ad.image && <img src={ad.image} alt={ad.title} style={{maxWidth: '100px', maxHeight: '100px'}} />}
+                <p>Place: {ad.place}</p>
               </div>
               <div>
                 <Button variant="outline-primary" onClick={() => handleEdit(ad)} className="mr-2">Edit</Button>
