@@ -11,6 +11,7 @@ import PostDetail from './components/posts/PostDetail';
 import PostForm from './components/posts/PostForm';
 import UserProfile from './components/profiles/UserProfile';
 import ProfessionalDashboard from './components/professional/ProfessionalDashboard';
+import JobOfferForm from './components/professional/JobOfferForm';
 import Sidebar from './components/common/Sidebar';
 import RightSidebar from './components/common/RightSidebar';
 import authService from './services/authService';
@@ -134,6 +135,10 @@ function App() {
                         ? <ProfessionalDashboard user={user} /> 
                         : <Navigate to="/" />
                     } 
+                  />
+                  <Route 
+                    path="/job-offer/:professionalId/:adId" 
+                    element={<JobOfferForm user={user} />} 
                   />
                 </Routes>
               </Col>
