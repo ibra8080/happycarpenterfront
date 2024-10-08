@@ -12,11 +12,10 @@ const AdvertisementSidebar = () => {
       try {
         const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/');
         console.log('API Response:', response.data);
-        setAdvertisements(Array.isArray(response.data) ? response.data.slice(0, 5) : []);
+        setAdvertisements(response.data.results ? response.data.results.slice(0, 5) : []);
       } catch (error) {
         console.error('Error fetching advertisements:', error);
-        console.error('Error details:', error.response?.data);
-        setError(`Failed to fetch advertisements. Please try again later.`);
+        setError('Failed to fetch advertisements. Please try again later.');
       }
     };
 
@@ -35,9 +34,16 @@ const AdvertisementSidebar = () => {
       ) : (
         advertisements.map(ad => (
           <Card key={ad.id} className="mb-3">
-            {ad.image && <Card.Img variant="top" src={ad.image} alt={ad.title} />}
+            {ad.image && (
+              <Card.Img 
+                variant="top" 
+                src={`https://res.cloudinary.com/ds5wgelgc/${ad.image}`} 
+                alt={ad.title} 
+              />
+            )}
             <Card.Body>
               <Card.Title>{ad.title}</Card.Title>
+              <Card.Text>{ad.description}</Card.Text>
               <Card.Text>{ad.place || 'Location not specified'}</Card.Text>
               <Link to={`/job-offer/${ad.professional}/${ad.id}`}>
                 <Button variant="primary">Make an Offer</Button>

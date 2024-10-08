@@ -33,9 +33,13 @@ const AdvertisementForm = ({ onSubmit, initialData }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-    for (const key in formData) {
-      formDataToSend.append(key, formData[key]);
-    }
+    Object.keys(formData).forEach(key => {
+      if (key === 'image' && formData[key] instanceof File) {
+        formDataToSend.append(key, formData[key]);
+      } else if (formData[key] !== null && formData[key] !== undefined) {
+        formDataToSend.append(key, formData[key]);
+      }
+    });
     onSubmit(formDataToSend);
   };
 

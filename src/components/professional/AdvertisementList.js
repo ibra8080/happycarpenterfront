@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Button, Modal, Alert } from 'react-bootstrap';
+import { ListGroup, Button, Modal, Alert, Image } from 'react-bootstrap';
 import axios from 'axios';
 import AdvertisementForm from './AdvertisementForm';
 
@@ -16,11 +16,21 @@ const AdvertisementList = ({ user, setError }) => {
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      setAdvertisements(response.data);
+      console.log('API Response:', response.data);
+      if (Array.isArray(response.data)) {
+        setAdvertisements(response.data);
+      } else if (response.data && Array.isArray(response.data.results)) {
+        setAdvertisements(response.data.results);
+      } else {
+        console.error('Unexpected API response format:', response.data);
+        setLocalError('Unexpected data format received from the server.');
+        setAdvertisements([]);
+      }
       setError(null);
     } catch (error) {
       console.error('Error fetching advertisements:', error);
       setLocalError('Failed to fetch advertisements. Please try again later.');
+      setAdvertisements([]);
     } finally {
       setLoading(false);
     }
@@ -56,25 +66,25 @@ const AdvertisementList = ({ user, setError }) => {
 
   const handleFormSubmit = async (formData) => {
     try {
+      const config = {
+        headers: { 
+          Authorization: `Bearer ${user.token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      };
+
+      let response;
       if (editingAd) {
-        await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/${editingAd.id}/`, formData, {
-          headers: { 
-            Authorization: `Bearer ${user.token}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+        response = await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/${editingAd.id}/`, formData, config);
       } else {
-        await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', formData, {
-          headers: { 
-            Authorization: `Bearer ${user.token}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+        response = await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', formData, config);
       }
+      
+      console.log('Advertisement submitted successfully:', response.data);
       setShowForm(false);
       fetchAdvertisements();
     } catch (error) {
-      console.error('Error submitting advertisement:', error);
+      console.error('Error submitting advertisement:', error.response ? error.response.data : error);
       setLocalError('Failed to submit advertisement. Please try again.');
     }
   };
@@ -100,7 +110,13 @@ const AdvertisementList = ({ user, setError }) => {
               <div>
                 <h5>{ad.title}</h5>
                 <p>{ad.description}</p>
-                {ad.image && <img src={ad.image} alt={ad.title} style={{maxWidth: '100px', maxHeight: '100px'}} />}
+                {ad.image && (
+                  <Image 
+                    src={`https://res.cloudinary.com/ds5wgelgc/${ad.image}`} 
+                    alt={ad.title} 
+                    style={{maxWidth: '200px', maxHeight: '200px'}} 
+                  />
+                )}
                 <p>Place: {ad.place}</p>
               </div>
               <div>
