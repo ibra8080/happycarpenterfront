@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -13,6 +13,11 @@ const JobOfferForm = ({ user }) => {
   });
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    console.log('professionalId:', professionalId);
+    console.log('adId:', adId);
+  }, [professionalId, adId]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -24,22 +29,42 @@ const JobOfferForm = ({ user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/', 
+      const professionalIdInt = parseInt(professionalId, 10);
+      const adIdInt = parseInt(adId, 10);
+  
+      if (isNaN(professionalIdInt) || isNaN(adIdInt)) {
+        throw new Error('Invalid professional ID or advertisement ID');
+      }
+  
+      const postData = {
+        ...formData,
+        budget: parseFloat(formData.budget)
+      };
+      console.log('Submitting data:', postData);
+      
+      const response = await axios.post(
+        `https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/${professionalIdInt}/${adIdInt}/`, 
+        postData,
         {
-          ...formData,
-          professional: professionalId,
-          advertisement: adId
-        },
-        {
-          headers: { Authorization: `Bearer ${user.token}` }
+          headers: { 
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
+      console.log('Job offer submitted successfully:', response.data);
       navigate('/'); // Redirect to home page after successful submission
     } catch (error) {
-      setError('Failed to submit job offer. Please try again.');
       console.error('Error submitting job offer:', error);
+      console.error('Error response:', error.response?.data);
+      const errorMessage = error.response?.data?.detail || 
+                           Object.values(error.response?.data || {}).flat().join(', ') ||
+                           error.message ||
+                           'An error occurred while submitting the job offer.';
+      setError(errorMessage);
     }
   };
+    
 
   if (!user) {
     return <Alert variant="warning">Please log in to make a job offer.</Alert>;
@@ -78,6 +103,7 @@ const JobOfferForm = ({ user }) => {
           value={formData.budget} 
           onChange={handleChange} 
           required 
+          step="0.01"
         />
       </Form.Group>
       <Button variant="primary" type="submit">

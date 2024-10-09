@@ -138,7 +138,7 @@ function App() {
                   />
                   <Route 
                     path="/job-offer/:professionalId/:adId" 
-                    element={<JobOfferForm user={user} />} 
+                    element={user ? <JobOfferForm user={user} /> : <Navigate to="/login" />} 
                   />
                 </Routes>
               </Col>

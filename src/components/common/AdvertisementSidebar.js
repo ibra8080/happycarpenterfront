@@ -37,7 +37,7 @@ const AdvertisementSidebar = () => {
             {ad.image && (
               <Card.Img 
                 variant="top" 
-                src={`https://res.cloudinary.com/ds5wgelgc/${ad.image}`} 
+                src={ad.image}
                 alt={ad.title} 
               />
             )}
@@ -45,7 +45,7 @@ const AdvertisementSidebar = () => {
               <Card.Title>{ad.title}</Card.Title>
               <Card.Text>{ad.description}</Card.Text>
               <Card.Text>{ad.place || 'Location not specified'}</Card.Text>
-              <Link to={`/job-offer/${ad.professional}/${ad.id}`}>
+              <Link to={`/job-offer/${ad.professional.id}/${ad.id}`}>
                 <Button variant="primary">Make an Offer</Button>
               </Link>
             </Card.Body>
