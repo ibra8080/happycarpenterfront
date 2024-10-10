@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Button, Alert } from 'react-bootstrap';
+import { ListGroup, Button, Alert, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 const JobOfferList = ({ user, setError }) => {
   const [jobOffers, setJobOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [localError, setLocalError] = useState(null);
+  const [feedback, setFeedback] = useState('');
 
   const fetchJobOffers = useCallback(async () => {
     try {
@@ -34,29 +35,17 @@ const JobOfferList = ({ user, setError }) => {
     fetchJobOffers();
   }, [fetchJobOffers]);
 
-  const handleAccept = async (offerId) => {
+  const handleStatusUpdate = async (offerId, newStatus) => {
     try {
-      await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/${offerId}/`, 
-        { status: 'accepted' },
+      await axios.post(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/${offerId}/update-status/`, 
+        { status: newStatus, feedback },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       fetchJobOffers();
+      setFeedback('');
     } catch (error) {
-      console.error('Error accepting job offer:', error);
-      setLocalError('Failed to accept job offer. Please try again.');
-    }
-  };
-
-  const handleReject = async (offerId) => {
-    try {
-      await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/${offerId}/`, 
-        { status: 'rejected' },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      fetchJobOffers();
-    } catch (error) {
-      console.error('Error rejecting job offer:', error);
-      setLocalError('Failed to reject job offer. Please try again.');
+      console.error('Error updating job offer status:', error);
+      setLocalError('Failed to update job offer status. Please try again.');
     }
   };
 
@@ -81,11 +70,21 @@ const JobOfferList = ({ user, setError }) => {
               <p>{offer.description}</p>
               <p>Budget: ${offer.budget}</p>
               <p>Status: {offer.status}</p>
-              {offer.status === 'pending' && (
-                <div>
-                  <Button variant="success" onClick={() => handleAccept(offer.id)}>Accept</Button>
-                  <Button variant="danger" onClick={() => handleReject(offer.id)}>Reject</Button>
-                </div>
+              {offer.feedback && <p>Feedback: {offer.feedback}</p>}
+              {user.profile.user_type === 'professional' && offer.status === 'pending' && (
+                <Form>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Feedback</Form.Label>
+                    <Form.Control 
+                      as="textarea" 
+                      rows={3} 
+                      value={feedback} 
+                      onChange={(e) => setFeedback(e.target.value)}
+                    />
+                  </Form.Group>
+                  <Button variant="success" onClick={() => handleStatusUpdate(offer.id, 'accepted')}>Accept</Button>
+                  <Button variant="danger" onClick={() => handleStatusUpdate(offer.id, 'rejected')}>Reject</Button>
+                </Form>
               )}
             </ListGroup.Item>
           ))}
