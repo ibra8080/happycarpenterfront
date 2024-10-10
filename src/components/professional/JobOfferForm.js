@@ -12,6 +12,8 @@ const JobOfferForm = ({ user }) => {
     budget: '',
   });
   const [error, setError] = useState(null);
+  const [status, setStatus] = useState('pending');
+  const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
     console.log('professionalId:', professionalId);
@@ -38,12 +40,15 @@ const JobOfferForm = ({ user }) => {
   
       const postData = {
         ...formData,
-        budget: parseFloat(formData.budget)
+        professional: professionalIdInt,
+        advertisement: adIdInt,
+        budget: parseFloat(formData.budget),
+        status: status,
+        feedback: feedback
       };
       console.log('Submitting data:', postData);
       
-      const response = await axios.post(
-        `https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/${professionalIdInt}/${adIdInt}/`, 
+      const response = await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/', 
         postData,
         {
           headers: { 
@@ -104,6 +109,29 @@ const JobOfferForm = ({ user }) => {
           onChange={handleChange} 
           required 
           step="0.01"
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Status</Form.Label>
+        <Form.Control 
+          as="select" 
+          name="status" 
+          value={status} 
+          onChange={(e) => setStatus(e.target.value)}
+        >
+          <option value="pending">Pending</option>
+          <option value="accepted">Accepted</option>
+          <option value="rejected">Rejected</option>
+        </Form.Control>
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Feedback</Form.Label>
+        <Form.Control 
+          as="textarea" 
+          rows={3} 
+          name="feedback" 
+          value={feedback} 
+          onChange={(e) => setFeedback(e.target.value)} 
         />
       </Form.Group>
       <Button variant="primary" type="submit">
