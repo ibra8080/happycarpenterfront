@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaPlusSquare, FaBriefcase } from 'react-icons/fa';
+import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaPlusSquare, FaBriefcase, FaClipboardList } from 'react-icons/fa';
 import logo from '../../assets/images/happycarpenterlogo.png';
 import styles from './Header.module.css';
 
@@ -26,6 +26,7 @@ const Header = ({ user, onLogout }) => {
             {user ? (
               <>
                 <Nav.Link as={Link} to="/create-post" className={styles.navLink}><FaPlusSquare /> Create Post</Nav.Link>
+                <Nav.Link as={Link} to="/my-job-offers" className={styles.navLink}><FaClipboardList /> My Offers</Nav.Link>
                 {user.profile && user.profile.user_type === 'professional' && (
                   <Nav.Link as={Link} to="/professional-dashboard" className={styles.navLink}>
                     <FaBriefcase /> Pro
@@ -42,11 +43,6 @@ const Header = ({ user, onLogout }) => {
                   {user.username || 'User'}
                 </Nav.Link>
                 <Nav.Link onClick={onLogout} className={styles.navLink}><FaSignOutAlt /> Logout</Nav.Link>
-                {user && (
-                  <Nav.Link as={Link} to="/my-job-offers" className={styles.navLink}>
-                    <FaBriefcase /> My Job Offers
-                  </Nav.Link>
-                )}
               </>
             ) : (
               <>
