@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Button, Modal, Alert } from 'react-bootstrap';
+import { ListGroup, Button, Modal, Alert, Image } from 'react-bootstrap';
 import axios from 'axios';
 import AdvertisementForm from './AdvertisementForm';
 
@@ -101,9 +101,15 @@ const AdvertisementList = ({ user, setError }) => {
         <ListGroup>
           {advertisements.map(ad => (
             <ListGroup.Item key={ad.id} className="d-flex justify-content-between align-items-center">
-              <div>
-                <h5>{ad.title}</h5>
-                <p>{ad.description}</p>
+              <div className="d-flex align-items-center">
+                {ad.image && (
+                  <Image src={ad.image} alt={ad.title} style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '15px' }} />
+                )}
+                <div>
+                  <h5>{ad.title}</h5>
+                  <p>{ad.description}</p>
+                  <p>Place: {ad.place}</p>
+                </div>
               </div>
               <div>
                 <Button variant="outline-primary" onClick={() => handleEdit(ad)} className="mr-2">Edit</Button>

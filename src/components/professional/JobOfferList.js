@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Button, Alert, Form } from 'react-bootstrap';
+import { ListGroup, Button, Alert, Form, Image } from 'react-bootstrap';
 import axios from 'axios';
 
-const JobOfferList = ({ user, setError }) => {
-  console.log('JobOfferList component mounted', user);
+const JobOfferList = ({ user }) => {
   const [jobOffers, setJobOffers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [localError, setLocalError] = useState(null);
+  const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState('');
 
   const fetchJobOffers = useCallback(async () => {
@@ -23,19 +22,17 @@ const JobOfferList = ({ user, setError }) => {
         setJobOffers(response.data.results);
       } else {
         console.error('Unexpected API response format:', response.data);
-        setLocalError('Unexpected data format received from the server.');
+        setError('Unexpected data format received from the server.');
       }
-      setError(null);
     } catch (error) {
       console.error('Error fetching job offers:', error.response || error);
-      setLocalError('Failed to fetch job offers. Please try again later.');
+      setError('Failed to fetch job offers. Please try again later.');
     } finally {
       setLoading(false);
     }
-  }, [user.token, setError]);
+  }, [user.token]);
 
   useEffect(() => {
-    console.log('JobOfferList useEffect triggered');
     fetchJobOffers();
   }, [fetchJobOffers]);
 
@@ -49,7 +46,7 @@ const JobOfferList = ({ user, setError }) => {
       setFeedback('');
     } catch (error) {
       console.error('Error updating job offer status:', error);
-      setLocalError('Failed to update job offer status. Please try again.');
+      setError('Failed to update job offer status. Please try again.');
     }
   };
 
@@ -57,9 +54,10 @@ const JobOfferList = ({ user, setError }) => {
     return <div>Loading job offers...</div>;
   }
 
-  if (localError) {
-    return <Alert variant="danger">{localError}</Alert>;
+  if (error) {
+    return <Alert variant="danger">{error}</Alert>;
   }
+
 
   return (
     <div>
@@ -70,11 +68,24 @@ const JobOfferList = ({ user, setError }) => {
         <ListGroup>
           {jobOffers.map(offer => (
             <ListGroup.Item key={offer.id}>
-              <h5>{offer.title}</h5>
-              <p>{offer.description}</p>
-              <p>Budget: ${offer.budget}</p>
-              <p>Status: {offer.status}</p>
-              {offer.feedback && <p>Feedback: {offer.feedback}</p>}
+              <div className="d-flex">
+                {offer.advertisement && offer.advertisement.image && (
+                  <Image src={offer.advertisement.image} alt={offer.advertisement.title} style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '15px' }} />
+                )}
+                <div>
+                  <h5>{offer.title}</h5>
+                  <p>{offer.description}</p>
+                  <p>Budget: ${offer.budget}</p>
+                  <p>Status: <strong>{offer.status}</strong></p>
+                  {offer.feedback && <p>Feedback: {offer.feedback}</p>}
+                  {offer.advertisement && <p>Related to advertisement: {offer.advertisement.title}</p>}
+                  {user.profile.user_type === 'professional' ? (
+                    <p>Client: {offer.client}</p>
+                  ) : (
+                    <p>Professional: {offer.professional}</p>
+                  )}
+                </div>
+              </div>
               {user.profile.user_type === 'professional' && offer.status === 'pending' && (
                 <Form>
                   <Form.Group className="mb-3">
