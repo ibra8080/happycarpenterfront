@@ -3,17 +3,20 @@ import { ListGroup, Button, Alert, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 const JobOfferList = ({ user, setError }) => {
+  console.log('JobOfferList component mounted', user);
   const [jobOffers, setJobOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [localError, setLocalError] = useState(null);
   const [feedback, setFeedback] = useState('');
 
   const fetchJobOffers = useCallback(async () => {
+    console.log('Attempting to fetch job offers');
     try {
       setLoading(true);
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/', {
         headers: { Authorization: `Bearer ${user.token}` }
       });
+      console.log('Job offers response:', response.data);
       if (Array.isArray(response.data)) {
         setJobOffers(response.data);
       } else if (response.data && Array.isArray(response.data.results)) {
@@ -24,7 +27,7 @@ const JobOfferList = ({ user, setError }) => {
       }
       setError(null);
     } catch (error) {
-      console.error('Error fetching job offers:', error);
+      console.error('Error fetching job offers:', error.response || error);
       setLocalError('Failed to fetch job offers. Please try again later.');
     } finally {
       setLoading(false);
@@ -32,6 +35,7 @@ const JobOfferList = ({ user, setError }) => {
   }, [user.token, setError]);
 
   useEffect(() => {
+    console.log('JobOfferList useEffect triggered');
     fetchJobOffers();
   }, [fetchJobOffers]);
 

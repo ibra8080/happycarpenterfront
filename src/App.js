@@ -39,22 +39,13 @@ function App() {
 
   useEffect(() => {
     console.log('User state updated in App:', user);
+    if (user) {
+      console.log('User token:', user.token);
+      console.log('User profile:', user.profile);
+    }
   }, [user]);
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const currentUser = await authService.initializeAuth();
-        setUser(currentUser);
-      } catch (error) {
-        console.error('Failed to initialize auth:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeAuth();
-
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       async (error) => {
@@ -100,7 +91,6 @@ function App() {
   return (
     <Router>
       <div className={styles.App}>
-        <Header user={user} onLogout={handleLogout} />
         <Header user={user} onLogout={handleLogout} />
         <main className={styles.Main}>
           <Container fluid>

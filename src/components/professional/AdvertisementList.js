@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Button, Modal, Alert, Image } from 'react-bootstrap';
+import { ListGroup, Button, Modal, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import AdvertisementForm from './AdvertisementForm';
 
@@ -64,27 +64,21 @@ const AdvertisementList = ({ user, setError }) => {
     }
   };
 
-  const handleFormSubmit = async (formData) => {
+  const handleFormSubmit = async (adData) => {
     try {
-      const config = {
-        headers: { 
-          Authorization: `Bearer ${user.token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      };
-
-      let response;
       if (editingAd) {
-        response = await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/${editingAd.id}/`, formData, config);
+        await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/${editingAd.id}/`, adData, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
       } else {
-        response = await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', formData, config);
+        await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', adData, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
       }
-      
-      console.log('Advertisement submitted successfully:', response.data);
       setShowForm(false);
       fetchAdvertisements();
     } catch (error) {
-      console.error('Error submitting advertisement:', error.response ? error.response.data : error);
+      console.error('Error submitting advertisement:', error);
       setLocalError('Failed to submit advertisement. Please try again.');
     }
   };
@@ -110,14 +104,6 @@ const AdvertisementList = ({ user, setError }) => {
               <div>
                 <h5>{ad.title}</h5>
                 <p>{ad.description}</p>
-                {ad.image && (
-                  <Image 
-                    src={`https://res.cloudinary.com/ds5wgelgc/${ad.image}`} 
-                    alt={ad.title} 
-                    style={{maxWidth: '200px', maxHeight: '200px'}} 
-                  />
-                )}
-                <p>Place: {ad.place}</p>
               </div>
               <div>
                 <Button variant="outline-primary" onClick={() => handleEdit(ad)} className="mr-2">Edit</Button>
