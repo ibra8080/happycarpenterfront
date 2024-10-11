@@ -42,6 +42,11 @@ const Header = ({ user, onLogout }) => {
                   {user.username || 'User'}
                 </Nav.Link>
                 <Nav.Link onClick={onLogout} className={styles.navLink}><FaSignOutAlt /> Logout</Nav.Link>
+                {user && (
+                  <Nav.Link as={Link} to="/my-job-offers" className={styles.navLink}>
+                    <FaBriefcase /> My Job Offers
+                  </Nav.Link>
+                )}
               </>
             ) : (
               <>

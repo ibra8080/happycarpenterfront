@@ -12,6 +12,7 @@ import PostForm from './components/posts/PostForm';
 import UserProfile from './components/profiles/UserProfile';
 import ProfessionalDashboard from './components/professional/ProfessionalDashboard';
 import JobOfferForm from './components/professional/JobOfferForm';
+import JobOfferList from './components/professional/JobOfferList';
 import Sidebar from './components/common/Sidebar';
 import RightSidebar from './components/common/RightSidebar';
 import authService from './services/authService';
@@ -129,6 +130,10 @@ function App() {
                   <Route 
                     path="/job-offer/:professionalId/:adId" 
                     element={user ? <JobOfferForm user={user} /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/my-job-offers" 
+                    element={user ? <JobOfferList user={user} /> : <Navigate to="/login" />} 
                   />
                 </Routes>
               </Col>
