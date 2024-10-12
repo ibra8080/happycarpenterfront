@@ -2,9 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Form, Button, Alert, Image } from 'react-bootstrap';
 import axios from 'axios';
 import styles from './UserProfile.module.css';
-import ReviewList from '../professional/ReviewList';  
+import ReviewList from '../professional/ReviewList';
+import { useParams } from 'react-router-dom';
 
 const UserProfile = ({ user }) => {
+  const { username } = useParams();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,28 +24,26 @@ const UserProfile = ({ user }) => {
   });
 
   const fetchProfile = useCallback(async () => {
-    if (!user) return;
+    if (!username) return;
     setLoading(true);
     try {
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/', {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${user?.token}` }
       });
       
       console.log('API Response:', response.data);
-
+  
       let userProfile;
       if (Array.isArray(response.data)) {
-        userProfile = response.data.find(profile => profile.owner === user.username);
+        userProfile = response.data.find(profile => profile.owner === username);
       } else if (response.data.results && Array.isArray(response.data.results)) {
-        userProfile = response.data.results.find(profile => profile.owner === user.username);
-      } else {
-        throw new Error('Unexpected API response format');
+        userProfile = response.data.results.find(profile => profile.owner === username);
       }
-
+  
       if (!userProfile) {
         throw new Error('Profile not found');
       }
-
+  
       setProfile(userProfile);
       setFormData(userProfile);
     } catch (err) {
@@ -52,7 +52,7 @@ const UserProfile = ({ user }) => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [username, user]);  
 
   useEffect(() => {
     fetchProfile();
@@ -111,6 +111,8 @@ const UserProfile = ({ user }) => {
     }
   };
 
+  const isOwnProfile = user && profile && user.username === profile.owner;
+
   return (
     <div className={styles.profileContainer}>
       <Card>
@@ -120,7 +122,7 @@ const UserProfile = ({ user }) => {
           ) : error ? (
             <Alert variant="danger">{error}</Alert>
           ) : profile ? (
-            editMode ? (
+            editMode && isOwnProfile ? (
               <Form onSubmit={handleSubmit}>
                 <Form.Group>
                   <Form.Label>Name</Form.Label>
@@ -238,14 +240,16 @@ const UserProfile = ({ user }) => {
                 )}
                 <p><strong>Interests:</strong> {profile.interests.join(', ')}</p>
                 <p><strong>Address:</strong> {profile.address}</p>
-                <Button onClick={() => setEditMode(true)} className={styles.editButton}>Edit Profile</Button>
+                {isOwnProfile && (
+                  <Button onClick={() => setEditMode(true)} className={styles.editButton}>Edit Profile</Button>
+                )}
               </>
             )
           ) : (
             <Alert variant="warning">Profile not found.</Alert>
           )}
-          {profile && profile.user_type === 'professional' && (
-            <ReviewList user={user} setError={setError} />
+          {profile && profile.user_type === 'professional' && user && user.username !== profile.owner && (
+            <ReviewList user={user} professionalUsername={profile.owner} setError={setError} />
           )}
         </Card.Body>
       </Card>
