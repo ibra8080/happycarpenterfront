@@ -103,6 +103,10 @@ function App() {
                 <Routes>
                   <Route path="/" element={<PostList user={user} />} />
                   <Route 
+                    path="/profile/:username" 
+                    element={<UserProfile user={user} />} 
+                  />
+                  <Route 
                     path="/login" 
                     element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} 
                   />
