@@ -195,6 +195,9 @@ const PostDetail = ({ user }) => {
             <>
               <Card.Title>{post.title}</Card.Title>
               <Card.Text>{post.content}</Card.Text>
+              <Card.Text>
+                Posted by: <Link to={`/profile/${post.owner}`}>{post.owner}</Link>
+              </Card.Text>
               <div className={styles.postActions}>
                 <Button 
                   variant={liked ? "danger" : "outline-danger"} 

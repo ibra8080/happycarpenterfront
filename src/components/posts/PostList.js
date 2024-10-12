@@ -167,7 +167,9 @@ const PostList = () => {
           <div className={styles.postHeader}>
             <Card.Title>{post.title}</Card.Title>
             <div className={styles.postMeta}>
-              <span className={styles.postAuthor}>{post.owner}</span>
+            <span className={styles.postAuthor}>
+              <Link to={`/profile/${post.owner}`}>{post.owner}</Link>
+            </span>
               <span className={styles.postDate}>{formatDate(post.created_at)}</span>
             </div>
           </div>
