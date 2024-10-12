@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ListGroup, Button, Alert, Form } from 'react-bootstrap';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
+
 
 const ReviewList = ({ user, setError }) => {
   const [reviews, setReviews] = useState([]);
@@ -79,13 +81,17 @@ const ReviewList = ({ user, setError }) => {
     return <Alert variant="danger">{localError}</Alert>;
   }
 
+  const canAddReview = user.username !== user.profile.owner;
+
   return (
     <div>
       <h2>Reviews</h2>
-      <Button onClick={() => setShowReviewForm(!showReviewForm)}>
-        {showReviewForm ? 'Cancel' : 'Add Review'}
-      </Button>
-      {showReviewForm && (
+      {canAddReview && (
+        <Button onClick={() => setShowReviewForm(!showReviewForm)}>
+          {showReviewForm ? 'Cancel' : 'Add Review'}
+        </Button>
+      )}
+      {showReviewForm && canAddReview && (
         <Form onSubmit={handleAddReview}>
           <Form.Group>
             <Form.Label>Rating</Form.Label>
@@ -117,7 +123,7 @@ const ReviewList = ({ user, setError }) => {
             <ListGroup.Item key={review.id}>
               <p>Rating: {review.rating}/5</p>
               <p>{review.content}</p>
-              <small>By: {review.reviewer}</small>
+              <small>By: <Link to={`/profile/${review.reviewer}`}>{review.reviewer}</Link></small>
               {user.username === review.reviewer && (
                 <div>
                   <Button variant="outline-primary" size="sm" onClick={() => handleEditReview(review.id, review.content, review.rating)}>Edit</Button>
