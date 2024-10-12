@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Form, Button, Alert, Image } from 'react-bootstrap';
 import axios from 'axios';
 import styles from './UserProfile.module.css';
+import ReviewList from '../professional/ReviewList';  
 
 const UserProfile = ({ user }) => {
   const [profile, setProfile] = useState(null);
@@ -28,7 +29,7 @@ const UserProfile = ({ user }) => {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       
-      console.log('API Response:', response.data); // Log the full response for debugging
+      console.log('API Response:', response.data);
 
       let userProfile;
       if (Array.isArray(response.data)) {
@@ -66,7 +67,6 @@ const UserProfile = ({ user }) => {
     if (e.target.files && e.target.files[0]) {
       setFormData({ ...formData, image: e.target.files[0] });
     } else {
-      // If the file input is cleared, set image to null
       setFormData({ ...formData, image: null });
     }
   };
@@ -80,7 +80,6 @@ const UserProfile = ({ user }) => {
         if (key === 'interests') {
           formDataToSend.append(key, JSON.stringify(formData[key]));
         } else if (key === 'image') {
-          // Only append the image if it's a File object (new image selected)
           if (formData[key] instanceof File) {
             formDataToSend.append(key, formData[key]);
           }
@@ -244,6 +243,9 @@ const UserProfile = ({ user }) => {
             )
           ) : (
             <Alert variant="warning">Profile not found.</Alert>
+          )}
+          {profile && profile.user_type === 'professional' && (
+            <ReviewList user={user} setError={setError} />
           )}
         </Card.Body>
       </Card>
