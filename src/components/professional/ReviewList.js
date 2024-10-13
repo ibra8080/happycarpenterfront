@@ -16,7 +16,7 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
       });
       const fetchedReviews = response.data.results || response.data;
       setReviews(fetchedReviews);
-      const hasUserReviewed = fetchedReviews.some(review => review.reviewer === user.username);
+      const hasUserReviewed = fetchedReviews.some(review => review.owner === user.username);
       onReviewStatusChange(hasUserReviewed);
       setLocalError(null);
     } catch (error) {
@@ -51,10 +51,23 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setReviews(prevReviews => prevReviews.filter(review => review.id !== reviewId));
+      // Optionally, update the user's review status
+      onReviewStatusChange(false);
     } catch (error) {
-      setLocalError('Failed to delete review. Please try again.');
+      console.error('Error deleting review:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        setLocalError(`Failed to delete review: ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        setLocalError('Failed to delete review. No response received from server.');
+      } else {
+        console.error('Error message:', error.message);
+        setLocalError(`Failed to delete review: ${error.message}`);
+      }
     }
   };
+  
 
   if (loading) {
     return <div>Loading reviews...</div>;
@@ -73,8 +86,8 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
             <ListGroup.Item key={review.id}>
               <p>Rating: {review.rating}/5</p>
               <p>{review.content}</p>
-              <small>By: <Link to={`/profile/${review.reviewer}`}>{review.reviewer}</Link></small>
-              {user.username === review.reviewer && (
+              <small>By: <Link to={`/profile/${review.owner}`}>{review.owner}</Link></small>
+              {user.username === review.owner && (
                 <div>
                   <Button variant="outline-primary" size="sm" onClick={() => handleEditReview(review.id, review.content, review.rating)}>Edit</Button>
                   <Button variant="outline-danger" size="sm" onClick={() => handleDeleteReview(review.id)}>Delete</Button>

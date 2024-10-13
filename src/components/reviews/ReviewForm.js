@@ -32,7 +32,7 @@ const ReviewForm = ({ user }) => {
         }
 
         const reviews = reviewResponse.data.results || reviewResponse.data;
-        const hasReviewed = reviews.some(review => review.reviewer === user.username);
+        const hasReviewed = reviews.some(review => review.owner === user.username);
         if (hasReviewed) {
           setError('You have already reviewed this professional.');
           navigate(`/profile/${username}`);
