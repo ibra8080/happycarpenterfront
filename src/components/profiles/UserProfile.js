@@ -5,6 +5,7 @@ import styles from './UserProfile.module.css';
 import ReviewList from '../professional/ReviewList';
 import { useParams, Link } from 'react-router-dom';
 
+
 const UserProfile = ({ user }) => {
   const { username } = useParams();
   const [profile, setProfile] = useState(null);
@@ -22,6 +23,12 @@ const UserProfile = ({ user }) => {
     interests: [],
     address: ''
   });
+
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
+
+  const handleReviewStatusChange = useCallback((hasReviewed) => {
+    setUserHasReviewed(hasReviewed);
+  }, []);
 
   const fetchProfile = useCallback(async () => {
     if (!username || !user) return;
@@ -130,7 +137,6 @@ const UserProfile = ({ user }) => {
       </div>
     );
   }
-
 
   return (
     <div className={styles.profileContainer}>
@@ -269,12 +275,16 @@ const UserProfile = ({ user }) => {
           )}
           {profile && profile.user_type === 'professional' && (
             <>
-              {user && user.username !== profile.owner && (
+              {user && user.username !== profile.owner && !userHasReviewed && (
                 <Link to={`/review/${profile.owner}`}>
                   <Button variant="primary">Leave a Review</Button>
                 </Link>
               )}
-              <ReviewList reviews={profile.reviews} user={user} />
+              <ReviewList 
+                professionalUsername={profile.owner} 
+                user={user} 
+                onReviewStatusChange={handleReviewStatusChange}
+              />
             </>
           )}
         </Card.Body>

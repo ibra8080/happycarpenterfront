@@ -1,52 +1,35 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Button, Alert, Form } from 'react-bootstrap';
+import { ListGroup, Alert, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-
-const ReviewList = ({ user, setError }) => {
+const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [localError, setLocalError] = useState(null);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewContent, setReviewContent] = useState('');
-  const [rating, setRating] = useState(5);
 
   const fetchReviews = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/', {
+      const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/?professional=${professionalUsername}`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      setReviews(response.data.results || response.data);
-      setError(null);
+      const fetchedReviews = response.data.results || response.data;
+      setReviews(fetchedReviews);
+      const hasUserReviewed = fetchedReviews.some(review => review.reviewer === user.username);
+      onReviewStatusChange(hasUserReviewed);
+      setLocalError(null);
     } catch (error) {
       console.error('Error fetching reviews:', error);
       setLocalError('Failed to fetch reviews. Please try again later.');
     } finally {
       setLoading(false);
     }
-  }, [user.token, setError]);
+  }, [user.token, professionalUsername, user.username, onReviewStatusChange]);
 
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
-
-  const handleAddReview = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/', 
-        { content: reviewContent, rating, professional: user.id },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      setReviews(prevReviews => [response.data, ...prevReviews]);
-      setShowReviewForm(false);
-      setReviewContent('');
-      setRating(5);
-    } catch (error) {
-      setLocalError('Failed to add review. Please try again.');
-    }
-  };
 
   const handleEditReview = async (reviewId, newContent, newRating) => {
     try {
@@ -81,43 +64,10 @@ const ReviewList = ({ user, setError }) => {
     return <Alert variant="danger">{localError}</Alert>;
   }
 
-  const canAddReview = user.username !== user.profile.owner;
-
   return (
     <div>
       <h2>Reviews</h2>
-      {canAddReview && (
-        <Button onClick={() => setShowReviewForm(!showReviewForm)}>
-          {showReviewForm ? 'Cancel' : 'Add Review'}
-        </Button>
-      )}
-      {showReviewForm && canAddReview && (
-        <Form onSubmit={handleAddReview}>
-          <Form.Group>
-            <Form.Label>Rating</Form.Label>
-            <Form.Control 
-              as="select" 
-              value={rating} 
-              onChange={(e) => setRating(Number(e.target.value))}
-            >
-              {[5, 4, 3, 2, 1].map(num => (
-                <option key={num} value={num}>{num}</option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-          <Form.Group>
-            <Form.Label>Review</Form.Label>
-            <Form.Control 
-              as="textarea" 
-              rows={3} 
-              value={reviewContent}
-              onChange={(e) => setReviewContent(e.target.value)}
-            />
-          </Form.Group>
-          <Button type="submit">Submit Review</Button>
-        </Form>
-      )}
-      {Array.isArray(reviews) && reviews.length > 0 ? (
+      {reviews.length > 0 ? (
         <ListGroup>
           {reviews.map(review => (
             <ListGroup.Item key={review.id}>

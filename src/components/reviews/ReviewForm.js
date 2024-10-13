@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -7,14 +7,51 @@ const ReviewForm = ({ user }) => {
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
+  const [professionalId, setProfessionalId] = useState(null);
   const { username } = useParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProfessionalAndCheckReview = async () => {
+      try {
+        const [profileResponse, reviewResponse] = await Promise.all([
+          axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          }),
+          axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/?professional=${username}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          })
+        ]);
+
+        const professionalProfile = profileResponse.data.find(profile => profile.owner === username);
+        if (professionalProfile) {
+          setProfessionalId(professionalProfile.id);
+        } else {
+          setError('Professional not found. Please check the username and try again.');
+          return;
+        }
+
+        const reviews = reviewResponse.data.results || reviewResponse.data;
+        const hasReviewed = reviews.some(review => review.reviewer === user.username);
+        if (hasReviewed) {
+          setError('You have already reviewed this professional.');
+          navigate(`/profile/${username}`);
+        }
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to fetch information. Please try again.');
+      }
+    };
+
+    fetchProfessionalAndCheckReview();
+  }, [username, user.token, user.username, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      await axios.post(
+      console.log('Submitting review:', { professional: username, rating, content });
+      const response = await axios.post(
         'https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/',
         { 
           professional: username,
@@ -23,10 +60,20 @@ const ReviewForm = ({ user }) => {
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
+      console.log('Review submitted successfully:', response.data);
       navigate(`/profile/${username}`);
     } catch (err) {
       console.error('Error submitting review:', err);
-      setError('Failed to submit review. Please try again.');
+      if (err.response && err.response.data.detail === "You have already reviewed this professional.") {
+        setError("You have already reviewed this professional.");
+        navigate(`/profile/${username}`);
+      } else if (err.response) {
+        setError(`Failed to submit review: ${err.response.status} - ${JSON.stringify(err.response.data)}`);
+      } else if (err.request) {
+        setError('Failed to submit review. No response received from server.');
+      } else {
+        setError(`Failed to submit review: ${err.message}`);
+      }
     }
   };
 
@@ -56,7 +103,7 @@ const ReviewForm = ({ user }) => {
           required
         />
       </Form.Group>
-      <Button type="submit">Submit Review</Button>
+      <Button type="submit" disabled={!professionalId}>Submit Review</Button>
       <Button variant="secondary" onClick={() => navigate(`/profile/${username}`)}>Cancel</Button>
     </Form>
   );
