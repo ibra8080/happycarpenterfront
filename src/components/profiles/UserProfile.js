@@ -3,7 +3,7 @@ import { Card, Form, Button, Alert, Image } from 'react-bootstrap';
 import axios from 'axios';
 import styles from './UserProfile.module.css';
 import ReviewList from '../professional/ReviewList';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 const UserProfile = ({ user }) => {
   const { username } = useParams();
@@ -24,26 +24,26 @@ const UserProfile = ({ user }) => {
   });
 
   const fetchProfile = useCallback(async () => {
-    if (!username) return;
+    if (!username || !user) return;
     setLoading(true);
     try {
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/', {
-        headers: { Authorization: `Bearer ${user?.token}` }
+        headers: { Authorization: `Bearer ${user.token}` }
       });
       
       console.log('API Response:', response.data);
-  
+
       let userProfile;
       if (Array.isArray(response.data)) {
         userProfile = response.data.find(profile => profile.owner === username);
       } else if (response.data.results && Array.isArray(response.data.results)) {
         userProfile = response.data.results.find(profile => profile.owner === username);
       }
-  
+
       if (!userProfile) {
         throw new Error('Profile not found');
       }
-  
+
       setProfile(userProfile);
       setFormData(userProfile);
     } catch (err) {
@@ -52,12 +52,16 @@ const UserProfile = ({ user }) => {
     } finally {
       setLoading(false);
     }
-  }, [username, user]);  
+  }, [username, user]);
 
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
-
+    if (user) {
+      fetchProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [fetchProfile, user]);
+ 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -111,7 +115,22 @@ const UserProfile = ({ user }) => {
     }
   };
 
-  const isOwnProfile = user && profile && user.username === profile.owner;
+  const isOwnProfile = user && user.username === username;
+
+  if (!user) {
+    return (
+      <div className={styles.profileContainer}>
+        <Card>
+          <Card.Body>
+            <Alert variant="info">
+              To view user profiles, please <Link to="/login">sign in</Link>.
+            </Alert>
+          </Card.Body>
+        </Card>
+      </div>
+    );
+  }
+
 
   return (
     <div className={styles.profileContainer}>
@@ -248,8 +267,15 @@ const UserProfile = ({ user }) => {
           ) : (
             <Alert variant="warning">Profile not found.</Alert>
           )}
-          {profile && profile.user_type === 'professional' && user && user.username !== profile.owner && (
-            <ReviewList user={user} professionalUsername={profile.owner} setError={setError} />
+          {profile && profile.user_type === 'professional' && (
+            <>
+              {user && user.username !== profile.owner && (
+                <Link to={`/review/${profile.owner}`}>
+                  <Button variant="primary">Leave a Review</Button>
+                </Link>
+              )}
+              <ReviewList reviews={profile.reviews} user={user} />
+            </>
           )}
         </Card.Body>
       </Card>

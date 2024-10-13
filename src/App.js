@@ -15,6 +15,7 @@ import JobOfferForm from './components/professional/JobOfferForm';
 import JobOfferList from './components/professional/JobOfferList';
 import Sidebar from './components/common/Sidebar';
 import RightSidebar from './components/common/RightSidebar';
+import ReviewForm from './components/reviews/ReviewForm';
 import authService from './services/authService';
 import styles from './App.module.css';
 
@@ -139,6 +140,9 @@ function App() {
                     path="/my-job-offers" 
                     element={user ? <JobOfferList user={user} /> : <Navigate to="/login" />} 
                   />
+                  <Route 
+                    path="/review/:username" 
+                    element={user ? <ReviewForm user={user} /> : <Navigate to="/login" />} />
                 </Routes>
               </Col>
               <Col md={3} className={styles.rightSidebar}>
