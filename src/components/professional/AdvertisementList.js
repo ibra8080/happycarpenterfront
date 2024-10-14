@@ -14,7 +14,8 @@ const AdvertisementList = ({ user, setError }) => {
     try {
       setLoading(true);
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${user.token}` },
+        params: { professional: user.id } 
       });
       console.log('API Response:', response.data);
       if (Array.isArray(response.data)) {
@@ -34,7 +35,7 @@ const AdvertisementList = ({ user, setError }) => {
     } finally {
       setLoading(false);
     }
-  }, [user.token, setError]);
+  }, [user.token, user.id, setError]);
 
   useEffect(() => {
     fetchAdvertisements();
