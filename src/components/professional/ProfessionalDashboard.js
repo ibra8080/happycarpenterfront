@@ -18,6 +18,10 @@ const ProfessionalDashboard = ({ user }) => {
     setActiveTab(tab);
   };
 
+  const handleReviewStatusChange = (hasReviewed) => {
+    console.log('Review status changed:', hasReviewed);
+  };
+
   if (!user || !user.profile || user.profile.user_type !== 'professional') {
     return <Alert variant="danger">Access denied. This dashboard is for professional users only.</Alert>;
   }
@@ -46,22 +50,18 @@ const ProfessionalDashboard = ({ user }) => {
       <Row className="mt-3">
         <Col>
           {activeTab === 'advertisements' && (
-            <>
-              {console.log('Rendering AdvertisementList')}
-              <AdvertisementList user={user} setError={setError} />
-            </>
+            <AdvertisementList user={user} setError={setError} />
           )}
           {activeTab === 'reviews' && (
-            <>
-              {console.log('Rendering ReviewList')}
-              <ReviewList user={user} setError={setError} />
-            </>
+            <ReviewList 
+              user={user} 
+              setError={setError}
+              professionalUsername={user.username}
+              onReviewStatusChange={handleReviewStatusChange}
+            />
           )}
           {activeTab === 'jobOffers' && (
-            <>
-              {console.log('Rendering JobOfferList')}
-              <JobOfferList user={user} setError={setError} />
-            </>
+            <JobOfferList user={user} setError={setError} />
           )}
         </Col>
       </Row>

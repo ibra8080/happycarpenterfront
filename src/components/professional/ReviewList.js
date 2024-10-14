@@ -17,17 +17,25 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   const fetchReviews = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('Fetching reviews for professional:', professionalUsername);
+      console.log('User token:', user.token);
       const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/?professional=${professionalUsername}`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
+      console.log('Reviews API Response:', response.data);
       const fetchedReviews = response.data.results || response.data;
       setReviews(fetchedReviews);
       const hasUserReviewed = fetchedReviews.some(review => review.owner === user.username);
       setUserHasReviewed(hasUserReviewed);
-      onReviewStatusChange(hasUserReviewed);
+      if (typeof onReviewStatusChange === 'function') {
+        onReviewStatusChange(hasUserReviewed);
+      }
       setLocalError(null);
     } catch (error) {
       console.error('Error fetching reviews:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
       setLocalError('Failed to fetch reviews. Please try again later.');
     } finally {
       setLoading(false);
@@ -90,7 +98,11 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   return (
     <div>
       <h2>Reviews {userHasReviewed && '(You have reviewed)'}</h2>
-      {reviews.length > 0 ? (
+      {loading ? (
+        <p>Loading reviews...</p>
+      ) : localError ? (
+        <Alert variant="danger">{localError}</Alert>
+      ) : reviews.length > 0 ? (
         <ListGroup>
           {reviews.map(review => (
             <ListGroup.Item key={review.id}>
@@ -113,7 +125,7 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
           ))}
         </ListGroup>
       ) : (
-        <Alert variant="info">No reviews available.</Alert>
+        <Alert variant="info">No reviews available for this professional.</Alert>
       )}
 
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
