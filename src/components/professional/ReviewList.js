@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ListGroup, Alert, Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import ReviewForm from '../reviews/ReviewForm';
 
 const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   const [reviews, setReviews] = useState([]);
@@ -10,6 +11,8 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState(null);
   const [userHasReviewed, setUserHasReviewed] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [reviewToEdit, setReviewToEdit] = useState(null);
 
   const fetchReviews = useCallback(async () => {
     try {
@@ -63,18 +66,17 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
     }
   };
 
-  const handleEditReview = async (reviewId, newContent, newRating) => {
-    try {
-      const response = await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/${reviewId}/`, 
-        { content: newContent, rating: newRating },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      setReviews(prevReviews => prevReviews.map(review => 
-        review.id === reviewId ? response.data : review
-      ));
-    } catch (error) {
-      setLocalError('Failed to edit review. Please try again.');
-    }
+  const openEditModal = (review) => {
+    setReviewToEdit(review);
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = (updatedReview) => {
+    setReviews(prevReviews => prevReviews.map(review => 
+      review.id === updatedReview.id ? updatedReview : review
+    ));
+    setShowEditModal(false);
+    setReviewToEdit(null);
   };
 
   if (loading) {
@@ -97,7 +99,13 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
               <small>By: <Link to={`/profile/${review.owner}`}>{review.owner}</Link></small>
               {user.username === review.owner && (
                 <div>
-                  <Button variant="outline-primary" size="sm" onClick={() => handleEditReview(review.id, review.content, review.rating)}>Edit</Button>
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm" 
+                    onClick={() => openEditModal(review)}
+                  >
+                    Edit
+                  </Button>
                   <Button variant="outline-danger" size="sm" onClick={() => openDeleteModal(review.id)}>Delete</Button>
                 </div>
               )}
@@ -121,6 +129,21 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
             Delete
           </Button>
         </Modal.Footer>
+      </Modal>
+
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Review</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {reviewToEdit && (
+            <ReviewForm 
+              user={user} 
+              initialReview={reviewToEdit}
+              onSubmitSuccess={handleEditSubmit}
+            />
+          )}
+        </Modal.Body>
       </Modal>
     </div>
   );
