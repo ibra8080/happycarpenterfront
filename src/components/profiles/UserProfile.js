@@ -3,11 +3,11 @@ import { Card, Form, Button, Alert, Image } from 'react-bootstrap';
 import axios from 'axios';
 import styles from './UserProfile.module.css';
 import ReviewList from '../professional/ReviewList';
-import { useParams, Link } from 'react-router-dom';
-
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
 const UserProfile = ({ user }) => {
   const { username } = useParams();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,10 +31,19 @@ const UserProfile = ({ user }) => {
   }, []);
 
   const fetchProfile = useCallback(async () => {
-    if (!username || !user) return;
+    if (!username) {
+      console.error('No username provided');
+      setError('Unable to load profile: No username provided');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
+    setError('');
+
     try {
-      const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/', {
+      console.log(`Fetching profile for username: ${username}`);
+      const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       
@@ -48,9 +57,11 @@ const UserProfile = ({ user }) => {
       }
 
       if (!userProfile) {
+        console.error(`Profile not found for username: ${username}`);
         throw new Error('Profile not found');
       }
 
+      console.log('Profile found:', userProfile);
       setProfile(userProfile);
       setFormData(userProfile);
     } catch (err) {
@@ -62,12 +73,13 @@ const UserProfile = ({ user }) => {
   }, [username, user]);
 
   useEffect(() => {
-    if (user) {
+    if (user && username) {
       fetchProfile();
-    } else {
-      setLoading(false);
+    } else if (user && !username) {
+      // If there's a user but no username in the URL, redirect to the user's profile
+      navigate(`/profile/${user.username}`);
     }
-  }, [fetchProfile, user]);
+  }, [fetchProfile, user, username, navigate]);
  
   const handleInputChange = (e) => {
     const { name, value } = e.target;

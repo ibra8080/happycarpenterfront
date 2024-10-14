@@ -34,7 +34,7 @@ const Header = ({ user, onLogout }) => {
                     <FaBriefcase /> Pro
                   </Nav.Link>
                 )}
-                <Nav.Link as={Link} to="/profile" className={styles.navLink}>
+                <Nav.Link as={Link} to={`/profile/${user.username}`} className={styles.navLink}>
                   {user.profile && user.profile.image && (
                     <img 
                       src={user.profile.image}
