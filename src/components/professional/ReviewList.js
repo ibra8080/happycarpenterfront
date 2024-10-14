@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Alert, Button } from 'react-bootstrap';
+import { ListGroup, Alert, Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -7,6 +7,9 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [localError, setLocalError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState(null);
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
 
   const fetchReviews = useCallback(async () => {
     try {
@@ -17,6 +20,7 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
       const fetchedReviews = response.data.results || response.data;
       setReviews(fetchedReviews);
       const hasUserReviewed = fetchedReviews.some(review => review.owner === user.username);
+      setUserHasReviewed(hasUserReviewed);
       onReviewStatusChange(hasUserReviewed);
       setLocalError(null);
     } catch (error) {
@@ -30,6 +34,34 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
+
+  const openDeleteModal = (reviewId) => {
+    setReviewToDelete(reviewId);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteReview = async () => {
+    if (!reviewToDelete) return;
+
+    try {
+      await axios.delete(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/${reviewToDelete}/`, 
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setReviews(prevReviews => prevReviews.filter(review => review.id !== reviewToDelete));
+      onReviewStatusChange(false);
+      setShowDeleteModal(false);
+      setReviewToDelete(null);
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      if (error.response && error.response.data) {
+        setLocalError(`Failed to delete review: ${error.response.data.detail}`);
+      } else {
+        setLocalError('Failed to delete review. Please try again.');
+      }
+      setShowDeleteModal(false);
+      setReviewToDelete(null);
+    }
+  };
 
   const handleEditReview = async (reviewId, newContent, newRating) => {
     try {
@@ -45,30 +77,6 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
     }
   };
 
-  const handleDeleteReview = async (reviewId) => {
-    try {
-      await axios.delete(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/${reviewId}/`, 
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      setReviews(prevReviews => prevReviews.filter(review => review.id !== reviewId));
-      // Optionally, update the user's review status
-      onReviewStatusChange(false);
-    } catch (error) {
-      console.error('Error deleting review:', error);
-      if (error.response) {
-        console.error('Error response:', error.response.data);
-        setLocalError(`Failed to delete review: ${JSON.stringify(error.response.data)}`);
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-        setLocalError('Failed to delete review. No response received from server.');
-      } else {
-        console.error('Error message:', error.message);
-        setLocalError(`Failed to delete review: ${error.message}`);
-      }
-    }
-  };
-  
-
   if (loading) {
     return <div>Loading reviews...</div>;
   }
@@ -79,7 +87,7 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
 
   return (
     <div>
-      <h2>Reviews</h2>
+      <h2>Reviews {userHasReviewed && '(You have reviewed)'}</h2>
       {reviews.length > 0 ? (
         <ListGroup>
           {reviews.map(review => (
@@ -90,7 +98,7 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
               {user.username === review.owner && (
                 <div>
                   <Button variant="outline-primary" size="sm" onClick={() => handleEditReview(review.id, review.content, review.rating)}>Edit</Button>
-                  <Button variant="outline-danger" size="sm" onClick={() => handleDeleteReview(review.id)}>Delete</Button>
+                  <Button variant="outline-danger" size="sm" onClick={() => openDeleteModal(review.id)}>Delete</Button>
                 </div>
               )}
             </ListGroup.Item>
@@ -99,6 +107,21 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
       ) : (
         <Alert variant="info">No reviews available.</Alert>
       )}
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this review?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteReview}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
