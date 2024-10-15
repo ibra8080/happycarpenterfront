@@ -316,7 +316,7 @@ const UserProfile = ({ user }) => {
                   <Button onClick={() => setEditMode(true)} className={styles.editButton}>Edit Profile</Button>
                 ) : (
                   <Follow 
-                    targetUserId={profile.id} 
+                    targetUserId={profile.owner}
                     currentUser={user} 
                     onFollowChange={handleFollowChange}
                   />
