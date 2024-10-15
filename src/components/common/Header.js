@@ -26,9 +26,7 @@ const Header = ({ user, onLogout }) => {
             {user ? (
               <>
                 <Nav.Link as={Link} to="/create-post" className={styles.navLink}><FaPlusSquare /> Create Post</Nav.Link>
-                {user.profile && user.profile.user_type !== 'professional' && (
-                  <Nav.Link as={Link} to="/my-job-offers" className={styles.navLink}><FaClipboardList /> My Offers</Nav.Link>
-                )}
+                <Nav.Link as={Link} to="/my-job-offers" className={styles.navLink}><FaClipboardList /> My Offers</Nav.Link>
                 {user.profile && user.profile.user_type === 'professional' && (
                   <Nav.Link as={Link} to="/professional-dashboard" className={styles.navLink}>
                     <FaBriefcase /> Pro

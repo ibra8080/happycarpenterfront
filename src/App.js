@@ -22,6 +22,7 @@ import AdvertisementSidebar from './components/common/AdvertisementSidebar';
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -31,6 +32,7 @@ function App() {
         setUser(currentUser);
       } catch (error) {
         console.error('Failed to initialize auth:', error);
+        setError('Failed to initialize authentication. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -46,6 +48,12 @@ function App() {
       console.log('User profile:', user.profile);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (error) {
+      console.error('App-level error:', error);
+    }
+  }, [error]);
 
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
@@ -79,11 +87,13 @@ function App() {
   const handleLogin = (userData) => {
     setUser(userData);
     authService.setAuthHeader(userData.token);
+    setError(null);
   };
 
   const handleLogout = () => {
     authService.logout();
     setUser(null);
+    setError(null);
   };
 
   if (loading) {
@@ -120,7 +130,6 @@ function App() {
                     element={user ? <PostForm /> : <Navigate to="/login" />} 
                   />
                   <Route path="/posts/:id" element={<PostDetail user={user} />} />
-                  
                   <Route 
                     path="/professional-dashboard" 
                     element={
@@ -135,7 +144,7 @@ function App() {
                   />
                   <Route 
                     path="/my-job-offers" 
-                    element={user ? <JobOfferList user={user} /> : <Navigate to="/login" />} 
+                    element={user ? <JobOfferList user={user} setError={setError} isProfessionalView={false} /> : <Navigate to="/login" />} 
                   />
                   <Route 
                     path="/review/:username" 

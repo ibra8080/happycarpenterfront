@@ -61,7 +61,7 @@ const ProfessionalDashboard = ({ user }) => {
             />
           )}
           {activeTab === 'jobOffers' && (
-            <JobOfferList user={user} setError={setError} />
+            <JobOfferList user={user} setError={setError} isProfessionalView={true} />
           )}
         </Col>
       </Row>
