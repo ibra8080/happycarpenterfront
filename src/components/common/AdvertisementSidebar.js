@@ -1,56 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Alert } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { Card, Button, Image } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import styles from './AdvertisementSidebar.module.css';
 
-const AdvertisementSidebar = () => {
-  const [advertisements, setAdvertisements] = useState([]);
+const AdvertisementSidebar = ({ user }) => {
+  const [ads, setAds] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchAdvertisements = async () => {
+    const fetchAds = async () => {
       try {
         const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/');
-        console.log('API Response:', response.data);
-        setAdvertisements(response.data.results ? response.data.results.slice(0, 5) : []);
-      } catch (error) {
-        console.error('Error fetching advertisements:', error);
-        setError('Failed to fetch advertisements. Please try again later.');
+        console.log('Advertisement API Response:', response.data);
+        if (Array.isArray(response.data)) {
+          setAds(response.data.slice(0, 5));
+        } else if (response.data && Array.isArray(response.data.results)) {
+          setAds(response.data.results.slice(0, 5));
+        } else {
+          console.error('Unexpected API response format:', response.data);
+          setError('Unexpected data format received from the server.');
+          setAds([]);
+        }
+      } catch (err) {
+        console.error('Error fetching ads:', err);
+        setError('Failed to load advertisements');
+        setAds([]);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchAdvertisements();
+    fetchAds();
   }, []);
 
-  if (error) {
-    return <Alert variant="danger">{error}</Alert>;
-  }
+  if (loading) return <div>Loading advertisements...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div>
-      <h3>Recent Advertisements</h3>
-      {advertisements.length === 0 ? (
-        <p>No recent advertisements available.</p>
-      ) : (
-        advertisements.map(ad => (
-          <Card key={ad.id} className="mb-3">
+    <div className={styles.adSidebar}>
+      <h3>Recent Ads</h3>
+      {ads.length > 0 ? (
+        ads.map(ad => (
+          <Card key={ad.id} className={styles.adCard}>
             {ad.image && (
-              <Card.Img 
-                variant="top" 
-                src={ad.image}
+              <Image 
+                src={ad.image} 
                 alt={ad.title} 
+                className={styles.adImage}
               />
             )}
             <Card.Body>
               <Card.Title>{ad.title}</Card.Title>
-              <Card.Text>{ad.description}</Card.Text>
-              <Card.Text>{ad.place || 'Location not specified'}</Card.Text>
-              <Link to={`/job-offer/${ad.professional.id}/${ad.id}`}>
-                <Button variant="primary">Make an Offer</Button>
-              </Link>
+              <Card.Text>{ad.description.substring(0, 50)}...</Card.Text>
+              <Card.Text className={styles.location}>Location: {ad.place}</Card.Text>
+              {user && (
+                <Link to={`/job-offer/${ad.professional.id}/${ad.id}`}>
+                  <Button variant="primary" size="sm" className={styles.offerButton}>Make Offer</Button>
+                </Link>
+              )}
             </Card.Body>
           </Card>
         ))
+      ) : (
+        <p>No recent advertisements available.</p>
       )}
     </div>
   );

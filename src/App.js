@@ -14,10 +14,10 @@ import ProfessionalDashboard from './components/professional/ProfessionalDashboa
 import JobOfferForm from './components/professional/JobOfferForm';
 import JobOfferList from './components/professional/JobOfferList';
 import Sidebar from './components/common/Sidebar';
-import RightSidebar from './components/common/RightSidebar';
 import ReviewForm from './components/reviews/ReviewForm';
 import authService from './services/authService';
 import styles from './App.module.css';
+import AdvertisementSidebar from './components/common/AdvertisementSidebar';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -143,7 +143,7 @@ function App() {
                 </Routes>
               </Col>
               <Col md={3} className={styles.rightSidebar}>
-                <RightSidebar />
+                <AdvertisementSidebar user={user} />
               </Col>
             </Row>
           </Container>
