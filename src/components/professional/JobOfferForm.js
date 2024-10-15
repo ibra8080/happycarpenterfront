@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const JobOfferForm = ({ user }) => {
-  const { professionalId, adId } = useParams();
+  const params = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
@@ -12,13 +12,13 @@ const JobOfferForm = ({ user }) => {
     budget: '',
   });
   const [error, setError] = useState(null);
-  const [status, setStatus] = useState('pending');
-  const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
-    console.log('professionalId:', professionalId);
-    console.log('adId:', adId);
-  }, [professionalId, adId]);
+    console.log('URL params:', params);
+    const professionalId = params.professionalId || (params.object && params.object.id);
+    const adId = params.adId;
+    console.log('Extracted IDs - professionalId:', professionalId, 'adId:', adId);
+  }, [params]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,24 +31,22 @@ const JobOfferForm = ({ user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const professionalIdInt = parseInt(professionalId, 10);
-      const adIdInt = parseInt(adId, 10);
-  
-      if (isNaN(professionalIdInt) || isNaN(adIdInt)) {
-        throw new Error('Invalid professional ID or advertisement ID');
+      const professionalId = params.professionalId || (params.object && params.object.id);
+      const adId = params.adId;
+      
+      if (!professionalId || !adId) {
+        throw new Error('Missing professional ID or advertisement ID');
       }
-  
+
       const postData = {
         ...formData,
-        professional: professionalIdInt,
-        advertisement: adIdInt,
+        professional: professionalId,
+        advertisement: adId,
         budget: parseFloat(formData.budget),
-        status: status,
-        feedback: feedback
       };
       console.log('Submitting data:', postData);
       
-      const response = await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/', 
+      const response = await axios.post(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/${professionalId}/${adId}/`, 
         postData,
         {
           headers: { 
@@ -69,11 +67,6 @@ const JobOfferForm = ({ user }) => {
       setError(errorMessage);
     }
   };
-    
-
-  if (!user) {
-    return <Alert variant="warning">Please log in to make a job offer.</Alert>;
-  }
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -109,29 +102,6 @@ const JobOfferForm = ({ user }) => {
           onChange={handleChange} 
           required 
           step="0.01"
-        />
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>Status</Form.Label>
-        <Form.Control 
-          as="select" 
-          name="status" 
-          value={status} 
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="pending">Pending</option>
-          <option value="accepted">Accepted</option>
-          <option value="rejected">Rejected</option>
-        </Form.Control>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>Feedback</Form.Label>
-        <Form.Control 
-          as="textarea" 
-          rows={3} 
-          name="feedback" 
-          value={feedback} 
-          onChange={(e) => setFeedback(e.target.value)} 
         />
       </Form.Group>
       <Button variant="primary" type="submit">
