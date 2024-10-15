@@ -15,7 +15,7 @@ const AdvertisementList = ({ user, setError }) => {
       setLoading(true);
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', {
         headers: { Authorization: `Bearer ${user.token}` },
-        params: { professional: user.id } 
+        params: { professional: user.id }
       });
       console.log('API Response:', response.data);
       if (Array.isArray(response.data)) {

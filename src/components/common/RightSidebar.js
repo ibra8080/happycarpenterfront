@@ -1,11 +1,12 @@
 import React from 'react';
 import styles from './RightSidebar.module.css';
-import AdvertisementSidebar from './AdvertisementSidebar';
 
 const RightSidebar = () => {
   return (
     <div className={styles.rightSidebar}>
-      <AdvertisementSidebar />
+      <div className={styles.adPlaceholder}>
+        Ad space
+      </div>
     </div>
   );
 };
