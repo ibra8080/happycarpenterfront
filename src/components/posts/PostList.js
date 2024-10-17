@@ -79,11 +79,21 @@ const PostList = () => {
       const apiCall = async () => {
         const currentUser = authService.getCurrentUser();
         const headers = currentUser ? { Authorization: `Bearer ${currentUser.token}` } : {};
-        const params = new URLSearchParams({
+        
+        // Create an object with all the search parameters
+        const params = {
           page: page.toString(),
           ...searchParams
-        });
-        const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?${params}`, { headers });
+        };
+
+        // Remove any parameters with empty string values
+        Object.keys(params).forEach(key => 
+          params[key] === '' && delete params[key]
+        );
+
+        const urlParams = new URLSearchParams(params);
+        
+        const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?${urlParams}`, { headers });
         return response;
       };
 
@@ -107,6 +117,9 @@ const PostList = () => {
       setError(null);
     } catch (err) {
       console.error('Error fetching posts:', err);
+      if (err.response && err.response.data) {
+        console.error('Server response:', err.response.data);
+      }
       if (err.message === 'Session expired. Please log in again.') {
         setError(err.message);
         navigate('/login');
@@ -162,12 +175,16 @@ const PostList = () => {
   }, []);
 
   const handleSearch = (params) => {
+    // Remove any parameters with empty string values
+    Object.keys(params).forEach(key => 
+      params[key] === '' && delete params[key]
+    );
     setSearchParams(params);
     setPosts([]);
     setPage(1);
     setHasMore(true);
   };
-
+  
   const memoizedPosts = useMemo(() => posts.map(post => (
     <Card key={`post-${post.id}`} className={`${styles.postCard} mb-4`}>
       {post.image && (

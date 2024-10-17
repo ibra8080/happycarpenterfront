@@ -6,7 +6,6 @@ import styles from './SearchAndFilter.module.css';
 const SearchAndFilter = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    categories: '',
     image_filter: '',
     ordering: '-created_at'
   });
@@ -43,29 +42,7 @@ const SearchAndFilter = ({ onSearch }) => {
         </Col>
       </Row>
       <Row>
-        <Col md={3}>
-          <Form.Group className={styles.filterSelect}>
-            <div className={styles.selectWrapper}>
-              <Form.Control
-                as="select"
-                name="categories"
-                value={filters.categories}
-                onChange={handleFilterChange}
-              >
-                <option value="">All Categories</option>
-                <option value="furniture">Furniture</option>
-                <option value="antiques">Antiques</option>
-                <option value="renovation&repair">Renovation & Repair</option>
-                <option value="artworks">Artworks</option>
-                <option value="tools">Tools</option>
-                <option value="construction">Construction</option>
-                <option value="other">Other</option>
-              </Form.Control>
-              <ChevronDown className={styles.selectIcon} />
-            </div>
-          </Form.Group>
-        </Col>
-        <Col md={3}>
+        <Col md={4}>
           <Form.Group className={styles.filterSelect}>
             <div className={styles.selectWrapper}>
               <Form.Control
@@ -88,7 +65,7 @@ const SearchAndFilter = ({ onSearch }) => {
             </div>
           </Form.Group>
         </Col>
-        <Col md={3}>
+        <Col md={4}>
           <Form.Group className={styles.filterSelect}>
             <div className={styles.selectWrapper}>
               <Form.Control
@@ -106,7 +83,7 @@ const SearchAndFilter = ({ onSearch }) => {
             </div>
           </Form.Group>
         </Col>
-        <Col md={3}>
+        <Col md={4}>
           <Button type="submit" className={styles.searchButton}>Search</Button>
         </Col>
       </Row>
