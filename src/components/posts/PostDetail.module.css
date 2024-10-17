@@ -98,3 +98,21 @@
 .actionButton svg {
   margin-right: 5px !important;
 }
+
+.postForm {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.imagePreviewContainer {
+  position: relative;
+}
+
+.removeImageButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 2px;
+  line-height: 1;
+}
