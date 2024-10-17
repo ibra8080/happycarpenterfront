@@ -2,13 +2,32 @@
   padding: 15px;
 }
 
+.userProfile {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.userAvatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .sidebarList {
   list-style-type: none;
   padding-left: 0;
+  margin-bottom: 30px;
 }
 
 .sidebarList li {
   margin-bottom: 10px;
+}
+
+.sidebarList a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
 }
 
 .followingList {

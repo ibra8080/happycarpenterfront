@@ -9,7 +9,7 @@ const Sidebar = ({ user }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchFollowing = async () => {
+    const fetchData = async () => {
       if (!user || !user.token) {
         setFollowing([]);
         setLoading(false);
@@ -17,32 +17,37 @@ const Sidebar = ({ user }) => {
       }
 
       try {
-        const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?owner=${user.username}`, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        
-        // Fetch profile details for each followed user
+        const [followsResponse, profileResponse] = await Promise.all([
+          axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?owner=${user.username}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          }),
+          axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          })
+        ]);
+
+        const userProfile = profileResponse.data.find(profile => profile.owner === user.username);
+        user.profileImage = userProfile?.image || '/default-avatar.png';
+        user.isProfessional = userProfile?.user_type === 'professional';
+
         const followingWithProfiles = await Promise.all(
-          response.data.results.map(async (follow) => {
-            const profileResponse = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/`, {
-              headers: { Authorization: `Bearer ${user.token}` }
-            });
-            const userProfile = profileResponse.data.find(profile => profile.owner === follow.followed);
-            return { ...follow, profile: userProfile };
+          followsResponse.data.results.map(async (follow) => {
+            const followedProfile = profileResponse.data.find(profile => profile.owner === follow.followed);
+            return { ...follow, profile: followedProfile };
           })
         );
 
         setFollowing(followingWithProfiles);
         setError(null);
       } catch (err) {
-        console.error('Error fetching following:', err);
-        setError('Failed to load following accounts.');
+        console.error('Error fetching data:', err);
+        setError('Failed to load data.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFollowing();
+    fetchData();
   }, [user]);
 
   if (loading) {
@@ -55,12 +60,22 @@ const Sidebar = ({ user }) => {
 
   return (
     <div className={styles.sidebar}>
-      <h3>Your Profile</h3>
+      <div className={styles.userProfile}>
+        <img 
+          src={user.profileImage} 
+          alt={`${user.username}'s avatar`} 
+          className={styles.userAvatar}
+        />
+      </div>
       <ul className={styles.sidebarList}>
-        <li><Link to="/profile">Your profile</Link></li>
-        <li><Link to="/your-posts">Your posts</Link></li>
+        <li><Link to={`/profile/${user.username}`}>My Profile</Link></li>
+        <li><Link to="/create-post">Create Post</Link></li>
+        <li><Link to="/my-offers">My Offers</Link></li>
+        {user.isProfessional && (
+          <li><Link to="/professional-dashboard">Pro</Link></li>
+        )}
       </ul>
-      <h3>You follow</h3>
+      <h3>I follow...</h3>
       <ul className={styles.followingList}>
         {following.length > 0 ? (
           following.map(follow => (

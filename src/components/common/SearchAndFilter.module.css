@@ -1,0 +1,19 @@
+.searchForm {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+  }
+  
+  .searchInput {
+    margin-bottom: 10px;
+  }
+  
+  .filterSelect {
+    margin-bottom: 10px;
+  }
+  
+  .searchButton {
+    width: 100%;
+  }
+  
