@@ -8,6 +8,7 @@ import authService from '../../services/authService';
 import styles from './PostList.module.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import ErrorBoundary from '../common/ErrorBoundary';
+import SearchAndFilter from '../common/SearchAndFilter';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -17,6 +18,7 @@ const PostList = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(authService.getCurrentUser());
+  const [searchParams, setSearchParams] = useState({});
   const navigate = useNavigate();
 
   const refreshTokenAndRetry = useCallback(async (apiCall) => {
@@ -77,7 +79,11 @@ const PostList = () => {
       const apiCall = async () => {
         const currentUser = authService.getCurrentUser();
         const headers = currentUser ? { Authorization: `Bearer ${currentUser.token}` } : {};
-        const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?page=${page}`, { headers });
+        const params = new URLSearchParams({
+          page: page.toString(),
+          ...searchParams
+        });
+        const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?${params}`, { headers });
         return response;
       };
 
@@ -115,7 +121,7 @@ const PostList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, hasMore, fetchLikedPosts, handleAuthError, navigate]);
+  }, [page, hasMore, fetchLikedPosts, handleAuthError, navigate, searchParams]);
 
   useEffect(() => {
     fetchPosts();
@@ -155,6 +161,13 @@ const PostList = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   }, []);
 
+  const handleSearch = (params) => {
+    setSearchParams(params);
+    setPosts([]);
+    setPage(1);
+    setHasMore(true);
+  };
+
   const memoizedPosts = useMemo(() => posts.map(post => (
     <Card key={`post-${post.id}`} className={`${styles.postCard} mb-4`}>
       {post.image && (
@@ -167,9 +180,9 @@ const PostList = () => {
           <div className={styles.postHeader}>
             <Card.Title>{post.title}</Card.Title>
             <div className={styles.postMeta}>
-            <span className={styles.postAuthor}>
-              <Link to={`/profile/${post.owner}`}>{post.owner}</Link>
-            </span>
+              <span className={styles.postAuthor}>
+                <Link to={`/profile/${post.owner}`}>{post.owner}</Link>
+              </span>
               <span className={styles.postDate}>{formatDate(post.created_at)}</span>
             </div>
           </div>
@@ -203,6 +216,7 @@ const PostList = () => {
   return (
     <ErrorBoundary>
       <div className={styles.postListContainer}>
+        <SearchAndFilter onSearch={handleSearch} />
         <InfiniteScroll
           dataLength={posts.length}
           next={fetchPosts}

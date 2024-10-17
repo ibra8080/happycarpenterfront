@@ -27,8 +27,10 @@ const Sidebar = ({ user }) => {
         ]);
 
         const userProfile = profileResponse.data.find(profile => profile.owner === user.username);
-        user.profileImage = userProfile?.image || '/default-avatar.png';
-        user.isProfessional = userProfile?.user_type === 'professional';
+        if (userProfile) {
+          user.profileImage = userProfile.image || '/default-avatar.png';
+          user.isProfessional = userProfile.user_type === 'professional';
+        }
 
         const followingWithProfiles = await Promise.all(
           followsResponse.data.results.map(async (follow) => {
@@ -60,21 +62,25 @@ const Sidebar = ({ user }) => {
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.userProfile}>
-        <img 
-          src={user.profileImage} 
-          alt={`${user.username}'s avatar`} 
-          className={styles.userAvatar}
-        />
-      </div>
-      <ul className={styles.sidebarList}>
-        <li><Link to={`/profile/${user.username}`}>My Profile</Link></li>
-        <li><Link to="/create-post">Create Post</Link></li>
-        <li><Link to="/my-offers">My Offers</Link></li>
-        {user.isProfessional && (
-          <li><Link to="/professional-dashboard">Pro</Link></li>
-        )}
-      </ul>
+      {user && (
+        <>
+          <div className={styles.userProfile}>
+            <img 
+              src={user.profileImage || '/default-avatar.png'} 
+              alt={`${user.username}'s avatar`} 
+              className={styles.userAvatar}
+            />
+          </div>
+          <ul className={styles.sidebarList}>
+            <li><Link to={`/profile/${user.username}`}>My Profile</Link></li>
+            <li><Link to="/create-post">Create Post</Link></li>
+            <li><Link to="/my-offers">My Offers</Link></li>
+            {user.isProfessional && (
+              <li><Link to="/professional-dashboard">Pro</Link></li>
+            )}
+          </ul>
+        </>
+      )}
       <h3>I follow...</h3>
       <ul className={styles.followingList}>
         {following.length > 0 ? (
