@@ -1,19 +1,56 @@
 .searchForm {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 5px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+.searchInput input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.filterSelect {
+  position: relative;
+}
+
+.selectWrapper {
+  position: relative;
+}
+
+.filterSelect select {
+  width: 100%;
+  padding: 10px;
+  padding-right: 30px; /* Make room for the icon */
+  font-size: 14px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  height: 40px;
+  appearance: none; /* Remove default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: white;
+}
+
+.selectIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* Ensure clicks pass through to the select element */
+}
+
+.searchButton {
+  width: 100%;
+  height: 40px;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .filterSelect, .searchButton {
+    margin-top: 10px;
   }
-  
-  .searchInput {
-    margin-bottom: 10px;
-  }
-  
-  .filterSelect {
-    margin-bottom: 10px;
-  }
-  
-  .searchButton {
-    width: 100%;
-  }
-  
+}
