@@ -1,19 +1,44 @@
 .sidebar {
-    padding: 15px;
+  padding: 15px;
+}
+
+.sidebarList {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.sidebarList li {
+  margin-bottom: 10px;
+}
+
+.followingList {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.followingItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.followingItem a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.followingAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    margin-bottom: 20px;
   }
-  
-  .sidebarList {
-    list-style-type: none;
-    padding-left: 0;
-  }
-  
-  .sidebarList li {
-    margin-bottom: 10px;
-  }
-  
-  @media (max-width: 768px) {
-    .sidebar {
-      margin-bottom: 20px;
-    }
-  }
-  
+}

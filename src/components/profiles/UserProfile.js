@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Form, Button, Alert, Image, ListGroup, Spinner } from 'react-bootstrap';
+import { Card, Form, Button, Alert, ListGroup, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import styles from './UserProfile.module.css';
@@ -34,6 +34,31 @@ const UserProfile = ({ user }) => {
 
   const [userHasReviewed, setUserHasReviewed] = useState(false);
 
+  // Fetch follow data
+  const fetchFollowData = useCallback(async (profileId) => {
+    if (!user || !user.token || !profileId) return;
+    try {
+      const [followersResponse, followingResponse, isFollowingResponse] = await Promise.all([
+        axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?followed=${username}`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        }),
+        axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?owner=${username}`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        }),
+        axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?followed=${username}&owner=${user.username}`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        })
+      ]);
+      
+      setFollowers(followersResponse.data.results || []);
+      setFollowing(followingResponse.data.results || []);
+      setIsFollowing((isFollowingResponse.data.results || []).length > 0);
+    } catch (error) {
+      console.error('Error fetching follow data:', error);
+      setError('Failed to load follow data. Please try again.');
+    }
+  }, [user, username]);
+
   // Fetch profile data
   const fetchProfile = useCallback(async () => {
     if (!user || !user.token) return;
@@ -65,32 +90,7 @@ const UserProfile = ({ user }) => {
     } finally {
       setLoading(false);
     }
-  }, [user, username]);
-
-  // Fetch follow data
-  const fetchFollowData = useCallback(async (profileId) => {
-    if (!user || !user.token || !profileId) return;
-    try {
-      const [followersResponse, followingResponse, isFollowingResponse] = await Promise.all([
-        axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?followed=${username}`, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        }),
-        axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?owner=${username}`, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        }),
-        axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?followed=${username}&owner=${user.username}`, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        })
-      ]);
-      
-      setFollowers(followersResponse.data.results || []);
-      setFollowing(followingResponse.data.results || []);
-      setIsFollowing((isFollowingResponse.data.results || []).length > 0);
-    } catch (error) {
-      console.error('Error fetching follow data:', error);
-      setError('Failed to load follow data. Please try again.');
-    }
-  }, [user, username]);
+  }, [user, username, fetchFollowData]);
 
   useEffect(() => {
     fetchProfile();
@@ -238,7 +238,6 @@ const UserProfile = ({ user }) => {
           {profile ? (
             editMode && isOwnProfile ? (
               <Form onSubmit={handleSubmit}>
-                {/* Form fields */}
                 <Form.Group className="mb-3">
                   <Form.Label>Name</Form.Label>
                   <Form.Control
@@ -248,7 +247,83 @@ const UserProfile = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 </Form.Group>
-                {/* ... other form fields ... */}
+                <Form.Group className="mb-3">
+                  <Form.Label>About</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    name="content"
+                    value={formData.content}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Profile Image</Form.Label>
+                  <Form.Control
+                    type="file"
+                    onChange={handleImageChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>User Type</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="user_type"
+                    value={formData.user_type}
+                    onChange={handleInputChange}
+                  >
+                    <option value="amateur">Amateur</option>
+                    <option value="professional">Professional</option>
+                  </Form.Control>
+                </Form.Group>
+                {formData.user_type === 'professional' && (
+                  <>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Years of Experience</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="years_of_experience"
+                        value={formData.years_of_experience}
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Specialties</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="specialties"
+                        value={formData.specialties}
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Portfolio URL</Form.Label>
+                      <Form.Control
+                        type="url"
+                        name="portfolio_url"
+                        value={formData.portfolio_url}
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
+                  </>
+                )}
+                <Form.Group className="mb-3">
+                  <Form.Label>Interests</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="interests"
+                    value={formData.interests.join(', ')}
+                    onChange={handleInterestsChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Address</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
                 <Button type="submit" className={styles.submitButton} disabled={submitting}>
                   {submitting ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -263,7 +338,18 @@ const UserProfile = ({ user }) => {
                   <Card.Img src={profile.image} alt={profile.name} className={styles.profileImage} />
                 )}
                 <Card.Text>{profile.content}</Card.Text>
-                {/* ... display other profile information ... */}
+                <p><strong>User Type:</strong> {profile.user_type}</p>
+                {profile.user_type === 'professional' && (
+                  <>
+                    <p><strong>Years of Experience:</strong> {profile.years_of_experience}</p>
+                    <p><strong>Specialties:</strong> {profile.specialties}</p>
+                    <p><strong>Portfolio:</strong> {profile.portfolio_url && (
+                      <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer">{profile.portfolio_url}</a>
+                    )}</p>
+                  </>
+                )}
+                <p><strong>Interests:</strong> {profile.interests.join(', ')}</p>
+                <p><strong>Address:</strong> {profile.address}</p>
                 <div className={styles.profileActions}>
                   {isOwnProfile && (
                     <Button onClick={() => setEditMode(true)} className={styles.editButton}>
@@ -279,7 +365,6 @@ const UserProfile = ({ user }) => {
                     />
                   )}
                 </div>
-                {/* Followers and Following lists */}
                 <p>Followers ({followers.length})</p>
                 <ListGroup className={styles.followList}>
                   {followers.map(follower => (

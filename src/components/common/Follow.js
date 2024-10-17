@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
 const Follow = React.memo(({ targetUserId, currentUser, isFollowing, onFollowChange }) => {
   const [loading, setLoading] = useState(false);
@@ -26,5 +27,14 @@ const Follow = React.memo(({ targetUserId, currentUser, isFollowing, onFollowCha
     </Button>
   );
 });
+
+Follow.propTypes = {
+  targetUserId: PropTypes.string.isRequired,
+  currentUser: PropTypes.object,
+  isFollowing: PropTypes.bool.isRequired,
+  onFollowChange: PropTypes.func.isRequired,
+};
+
+Follow.displayName = 'Follow';
 
 export default Follow;
