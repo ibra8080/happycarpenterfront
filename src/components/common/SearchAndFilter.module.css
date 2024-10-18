@@ -1,7 +1,7 @@
 .searchForm {
   margin-bottom: 20px;
   padding: 15px;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
   border-radius: 5px;
 }
 
@@ -9,7 +9,7 @@
   width: 100%;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 
@@ -24,9 +24,9 @@
 .filterSelect select {
   width: 100%;
   padding: 10px;
-  padding-right: 30px; /* Make room for the icon */
+  padding-right: 30px; 
   font-size: 14px;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   height: 40px;
   appearance: none; /* Remove default arrow */
