@@ -1,0 +1,47 @@
+:root {
+    --primary-color: #a60d0d;
+    --secondary-color: #D69723;
+    --background-color: #fffcec;
+    --text-color: #3f3f3f;
+    --light-text-color: #555555;
+    --border-color: #cfced3;
+    --button-hover-color: #D69723;
+    --input-background: #ffffff;
+    --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --border-radius: 4px;
+    --transition: all 0.3s ease;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+
+  .btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transition: var(--transition);
+  }
+
+  .btn-primary:hover, .btn-primary:focus {
+    background-color: var(--button-hover-color);
+    border-color: var(--button-hover-color);
+  }
+
+  .form-control {
+    border-color: var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--input-background);
+  }
+
+  .form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(214, 151, 35, 0.25);
+  }
+
+  .card {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
