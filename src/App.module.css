@@ -11,11 +11,11 @@
 }
 
 .leftSidebar {
-  border-right: #a60d0d solid 1px;
+  border-right: var(--primary-color) solid 1px;
 }
 
 .rightSidebar {
-  border-left: #a60d0d solid 1px;
+  border-left: var(--primary-color) solid 1px;
 }
 
 .mainContent {
@@ -25,6 +25,7 @@
 @media (max-width: 768px) {
   .leftSidebar, .rightSidebar {
     margin-bottom: 20px;
+    border: none;
   }
   
   .Main {

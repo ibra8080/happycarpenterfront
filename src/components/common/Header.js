@@ -1,13 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar, Nav, Container } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaPlusSquare, FaBriefcase, FaClipboardList } from 'react-icons/fa';
 import logo from '../../assets/images/happycarpenterlogo.png';
 import styles from './Header.module.css';
 
-const Header = ({ user, onLogout }) => {
-  console.log('Header user data:', user);
-
+const Header = ({ user, onLogout, isMobile, followers }) => {
   return (
     <Navbar bg="light" expand="lg" className={`${styles.navbar} fixed-top`}>
       <Container>
@@ -32,6 +30,7 @@ const Header = ({ user, onLogout }) => {
                     <FaBriefcase /> Pro
                   </Nav.Link>
                 )}
+                
                 <Nav.Link as={Link} to={`/profile/${user.username}`} className={styles.navLink}>
                   {user.profile && user.profile.image && (
                     <img 
@@ -42,6 +41,15 @@ const Header = ({ user, onLogout }) => {
                   )}
                   {user.username || 'User'}
                 </Nav.Link>
+                {isMobile && (
+                  <NavDropdown title="I follow" id="basic-nav-dropdown" className={styles.navLink}>
+                    {followers && followers.map(follow => (
+                      <NavDropdown.Item key={follow.id} as={Link} to={`/profile/${follow.followed}`}>
+                        {follow.followed}
+                      </NavDropdown.Item>
+                    ))}
+                  </NavDropdown>
+                )}
                 <Nav.Link onClick={onLogout} className={styles.navLink}><FaSignOutAlt /> Logout</Nav.Link>
               </>
             ) : (

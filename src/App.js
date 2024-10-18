@@ -23,6 +23,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [followers, setFollowers] = useState([]);
+
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -84,6 +87,32 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchFollowers = async () => {
+      if (user && user.token) {
+        try {
+          const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?owner=${user.username}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          });
+          setFollowers(response.data.results || []);
+        } catch (error) {
+          console.error('Error fetching followers:', error);
+        }
+      }
+    };
+
+    fetchFollowers();
+  }, [user]);
+
   const handleLogin = (userData) => {
     setUser(userData);
     authService.setAuthHeader(userData.token);
@@ -100,55 +129,37 @@ function App() {
     return <div>Loading...</div>;
   }
 
+
   return (
     <Router>
       <div className={styles.App}>
-        <Header user={user} onLogout={handleLogout} />
+        <Header user={user} onLogout={handleLogout} isMobile={isMobile} followers={followers} />
         <main className={styles.Main}>
           <Container fluid>
             <Row>
-              <Col md={3} className={styles.leftSidebar}>
-                <Sidebar user={user} />
-              </Col>
-              <Col md={6} className={styles.mainContent}>
+              {!isMobile && (
+                <Col md={3} className={styles.leftSidebar}>
+                  <Sidebar user={user} />
+                </Col>
+              )}
+              <Col md={isMobile ? 12 : 6} className={styles.mainContent}>
                 <Routes>
                   <Route path="/" element={<PostList user={user} />} />
-                  <Route 
-                    path="/profile/:username" 
-                    element={<UserProfile user={user} />} 
-                  />
-                  <Route 
-                    path="/login" 
-                    element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} 
-                  />
-                  <Route 
-                    path="/register" 
-                    element={user ? <Navigate to="/" /> : <Register onRegister={handleLogin} />} 
-                  />
-                  <Route 
-                    path="/create-post" 
-                    element={user ? <PostForm /> : <Navigate to="/login" />} 
-                  />
+                  <Route path="/profile/:username" element={<UserProfile user={user} />} />
+                  <Route path="/login" element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} />
+                  <Route path="/register" element={user ? <Navigate to="/" /> : <Register onRegister={handleLogin} />} />
+                  <Route path="/create-post" element={user ? <PostForm /> : <Navigate to="/login" />} />
                   <Route path="/posts/:id" element={<PostDetail user={user} />} />
                   <Route 
                     path="/professional-dashboard" 
-                    element={
-                      user && user.profile && user.profile.user_type === 'professional' 
-                        ? <ProfessionalDashboard user={user} /> 
-                        : <Navigate to="/" />
+                    element={user && user.profile && user.profile.user_type === 'professional' 
+                      ? <ProfessionalDashboard user={user} /> 
+                      : <Navigate to="/" />
                     } 
                   />
-                  <Route 
-                    path="/job-offer/:professionalId/:adId" 
-                    element={user ? <JobOfferForm user={user} /> : <Navigate to="/login" />} 
-                  />
-                  <Route 
-                    path="/my-job-offers" 
-                    element={user ? <JobOfferList user={user} setError={setError} isProfessionalView={false} /> : <Navigate to="/login" />} 
-                  />
-                  <Route 
-                    path="/review/:username" 
-                    element={user ? <ReviewForm user={user} /> : <Navigate to="/login" />} />
+                  <Route path="/job-offer/:professionalId/:adId" element={user ? <JobOfferForm user={user} /> : <Navigate to="/login" />} />
+                  <Route path="/my-job-offers" element={user ? <JobOfferList user={user} setError={setError} isProfessionalView={false} /> : <Navigate to="/login" />} />
+                  <Route path="/review/:username" element={user ? <ReviewForm user={user} /> : <Navigate to="/login" />} />
                 </Routes>
               </Col>
               <Col md={3} className={styles.rightSidebar}>
