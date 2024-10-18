@@ -3,7 +3,7 @@
   padding-top: 0;
   padding-bottom: 0;
   border-bottom: 1px solid var(--primary-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--box-shadow);
 }
 
 .navbarBrand img {
@@ -13,7 +13,7 @@
 
 .navLink {
   color: var(--secondary-color) !important;
-  transition: color 0.3s ease;
+  transition: var(--transition);
   padding: 15px 10px !important;
 }
 
