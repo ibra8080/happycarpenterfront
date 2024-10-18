@@ -1,144 +1,91 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaHeart, FaComment, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import likeService from '../../services/likeService';
 import authService from '../../services/authService';
-import styles from './PostList.module.css';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import ErrorBoundary from '../common/ErrorBoundary';
 import SearchAndFilter from '../common/SearchAndFilter';
+import styles from './PostList.module.css';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
   const [likedPosts, setLikedPosts] = useState({});
-  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(authService.getCurrentUser());
   const [searchParams, setSearchParams] = useState({});
+  const [user] = useState(authService.getCurrentUser());
   const navigate = useNavigate();
+  const currentPage = useRef(1);
+  const isFetching = useRef(false);
 
-  const refreshTokenAndRetry = useCallback(async (apiCall) => {
-    try {
-      await authService.refreshToken();
-      const updatedUser = authService.getCurrentUser();
-      setUser(updatedUser);
-      return await apiCall();
-    } catch (refreshError) {
-      console.error('Token refresh failed:', refreshError);
-      setError('Your session has expired. Please log in again.');
-      await authService.logout();
-      navigate('/login');
-      throw refreshError;
-    }
-  }, [navigate]);
+  const fetchPosts = useCallback(async (pageToFetch, shouldAppend = true) => {
+    if (isFetching.current) return;
+    isFetching.current = true;
 
-  const handleAuthError = useCallback(async (error, apiCall) => {
-    if (error.response && error.response.status === 401) {
-      try {
-        return await refreshTokenAndRetry(apiCall);
-      } catch (refreshError) {
-        setError('Your session has expired. Please log in again.');
-        navigate('/login');
-        throw refreshError;
-      }
-    }
-    throw error;
-  }, [refreshTokenAndRetry, navigate]);
-
-  const fetchLikedPosts = useCallback(async (newPosts) => {
-    if (!user || !user.token) return;
-    try {
-      const newLikedPosts = {};
-      const promises = newPosts.map(async (post) => {
-        if (likedPosts[post.id] === undefined) {
-          try {
-            const likesResponse = await likeService.getLikes(post.id, user.token);
-            newLikedPosts[post.id] = likesResponse.results.some(like => like.owner === user.username);
-          } catch (error) {
-            await handleAuthError(error, () => likeService.getLikes(post.id, user.token));
-          }
-        } else {
-          newLikedPosts[post.id] = likedPosts[post.id];
-        }
-      });
-      await Promise.all(promises);
-      setLikedPosts(prev => ({ ...prev, ...newLikedPosts }));
-    } catch (error) {
-      console.error('Error fetching liked posts:', error);
-    }
-  }, [user, likedPosts, handleAuthError]);
-
-  const fetchPosts = useCallback(async () => {
-    if (!hasMore) return;
     try {
       setLoading(true);
-      const apiCall = async () => {
-        const currentUser = authService.getCurrentUser();
-        const headers = currentUser ? { Authorization: `Bearer ${currentUser.token}` } : {};
-        
-        // Create an object with all the search parameters
-        const params = {
-          page: page.toString(),
-          ...searchParams
-        };
+      console.log(`Fetching posts for page ${pageToFetch}, shouldAppend: ${shouldAppend}`);
 
-        // Remove any parameters with empty string values
-        Object.keys(params).forEach(key => 
-          params[key] === '' && delete params[key]
-        );
-
-        const urlParams = new URLSearchParams(params);
-        
-        const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?${urlParams}`, { headers });
-        return response;
+      const currentUser = authService.getCurrentUser();
+      const headers = currentUser ? { Authorization: `Bearer ${currentUser.token}` } : {};
+      
+      const params = {
+        page: pageToFetch.toString(),
+        ...searchParams
       };
 
-      let response;
-      try {
-        response = await apiCall();
-      } catch (error) {
-        response = await handleAuthError(error, apiCall);
-      }
+      Object.keys(params).forEach(key => params[key] === '' && delete params[key]);
+
+      const urlParams = new URLSearchParams(params);
+      const url = `https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?${urlParams}`;
+      
+      console.log(`API call URL: ${url}`);
+      const response = await axios.get(url, { headers });
+      console.log('API Response:', response.data);
 
       const newPosts = response.data.results;
+      console.log(`Fetched ${newPosts.length} new posts for page ${pageToFetch}`);
+
       if (newPosts.length === 0) {
+        console.log('No more posts to fetch');
         setHasMore(false);
-        setLoading(false);
-        return;
+      } else {
+        setPosts(prevPosts => shouldAppend ? [...prevPosts, ...newPosts] : newPosts);
+        setHasMore(!!response.data.next);
+        currentPage.current = shouldAppend ? currentPage.current + 1 : 2;
+        console.log(`Updated current page to: ${currentPage.current}`);
       }
-      setPosts(prevPosts => [...prevPosts, ...newPosts]);
-      setHasMore(!!response.data.next);
-      setPage(prevPage => prevPage + 1);
-      await fetchLikedPosts(newPosts);
       setError(null);
     } catch (err) {
       console.error('Error fetching posts:', err);
-      if (err.response && err.response.data) {
-        console.error('Server response:', err.response.data);
-      }
-      if (err.message === 'Session expired. Please log in again.') {
-        setError(err.message);
-        navigate('/login');
-      } else if (err.response && err.response.status === 404) {
-        setHasMore(false);
-        if (page === 1) {
-          setError('No posts available at the moment.');
-        }
-      } else {
-        setError('Failed to fetch posts. Please try again later.');
-      }
+      setError('Failed to fetch posts. Please try again later.');
     } finally {
       setLoading(false);
+      isFetching.current = false;
     }
-  }, [page, hasMore, fetchLikedPosts, handleAuthError, navigate, searchParams]);
+  }, [searchParams]);
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    currentPage.current = 1;
+    fetchPosts(1, false);
+  }, [fetchPosts, searchParams]);
+
+  const handleSearch = useCallback((params) => {
+    const filteredParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value !== '')
+    );
+    setSearchParams(filteredParams);
+  }, []);
+
+  const handleLoadMore = useCallback(() => {
+    if (!isFetching.current && hasMore) {
+      fetchPosts(currentPage.current);
+    }
+  }, [fetchPosts, hasMore]);
 
   const handleLike = useCallback(async (postId) => {
     if (!user || !user.token) {
@@ -146,7 +93,7 @@ const PostList = () => {
       return;
     }
 
-    const likeApiCall = async () => {
+    try {
       if (likedPosts[postId]) {
         await likeService.unlikePost(postId, user.token);
         setLikedPosts(prev => ({ ...prev, [postId]: false }));
@@ -160,31 +107,16 @@ const PostList = () => {
           post.id === postId ? { ...post, likes_count: post.likes_count + 1 } : post
         ));
       }
-    };
-
-    try {
-      await likeApiCall();
     } catch (error) {
-      await handleAuthError(error, likeApiCall);
+      console.error('Error handling like:', error);
     }
-  }, [user, likedPosts, navigate, handleAuthError]);
+  }, [user, likedPosts, navigate]);
 
   const formatDate = useCallback((dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   }, []);
 
-  const handleSearch = (params) => {
-    // Remove any parameters with empty string values
-    Object.keys(params).forEach(key => 
-      params[key] === '' && delete params[key]
-    );
-    setSearchParams(params);
-    setPosts([]);
-    setPage(1);
-    setHasMore(true);
-  };
-  
   const memoizedPosts = useMemo(() => posts.map(post => (
     <Card key={`post-${post.id}`} className={`${styles.postCard} mb-4`}>
       {post.image && (
@@ -228,7 +160,8 @@ const PostList = () => {
   )), [posts, likedPosts, handleLike, formatDate]);
 
   if (loading && posts.length === 0) return <div className={styles.loadingSpinner}>Loading posts...</div>;
-  if (error && posts.length === 0) return <div className={styles.error}>{error}</div>;
+  if (error) return <div className={styles.error}>{error}</div>;
+  if (!loading && posts.length === 0) return <div className={styles.error}>No posts available.</div>;
 
   return (
     <ErrorBoundary>
@@ -236,7 +169,7 @@ const PostList = () => {
         <SearchAndFilter onSearch={handleSearch} />
         <InfiniteScroll
           dataLength={posts.length}
-          next={fetchPosts}
+          next={handleLoadMore}
           hasMore={hasMore}
           loader={<div className={styles.loadingSpinner}>Loading more posts...</div>}
           endMessage={<p className={styles.endMessage}>No more posts to load.</p>}

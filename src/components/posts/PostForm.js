@@ -7,9 +7,9 @@ import styles from './PostForm.module.css';
 const PostForm = () => {
   const [formData, setFormData] = useState({
     title: '',
-    content: '',
     image: null,
-    image_filter: 'normal'
+    content: '',
+    image_filter: 'furniture' // Default to 'furniture' since we removed 'normal'
   });
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
@@ -20,7 +20,12 @@ const PostForm = () => {
   useEffect(() => {
     const savedForm = localStorage.getItem('postFormDraft');
     if (savedForm) {
-      setFormData(JSON.parse(savedForm));
+      const parsedForm = JSON.parse(savedForm);
+      setFormData(parsedForm);
+      if (parsedForm.image) {
+        // We can't store the actual file in localStorage, so we'll just set preview to null here
+        setPreview(null);
+      }
     }
   }, []);
 
@@ -107,19 +112,6 @@ const PostForm = () => {
           <Form.Text>{formData.title.length}/255</Form.Text>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Content</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            required
-            minLength={10}
-          />
-          <Form.Text>{formData.content.length} characters (minimum 10)</Form.Text>
-        </Form.Group>
-        <Form.Group className="mb-3">
           <Form.Label>Image</Form.Label>
           <Form.Control
             type="file"
@@ -138,14 +130,13 @@ const PostForm = () => {
           )}
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Image Filter</Form.Label>
+          <Form.Label>Work Type</Form.Label>
           <Form.Control 
             as="select" 
             name="image_filter"
             value={formData.image_filter}
             onChange={handleChange}
           >
-            <option value="normal">Normal</option>
             <option value="furniture">Furniture</option>
             <option value="antiques">Antiques</option>
             <option value="renovation&repair">Renovation & Repair</option>
@@ -154,6 +145,19 @@ const PostForm = () => {
             <option value="construction">Construction</option>
             <option value="other">Other</option>
           </Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Content</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            required
+            minLength={10}
+          />
+          <Form.Text>{formData.content.length} characters (minimum 10)</Form.Text>
         </Form.Group>
         <Button variant="primary" type="submit" disabled={isLoading}>
           {isLoading ? 'Creating Post...' : 'Create Post'}
