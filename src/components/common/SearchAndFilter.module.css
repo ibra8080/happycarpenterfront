@@ -13,6 +13,10 @@
   border-radius: 4px;
 }
 
+.filterCol {
+  padding: 0 5px;
+}
+
 .filterSelect {
   position: relative;
 }
@@ -24,12 +28,11 @@
 .filterSelect select {
   width: 100%;
   padding: 10px;
-  padding-right: 30px; 
+  padding-right: 30px;
   font-size: 14px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  height: 40px;
-  appearance: none; /* Remove default arrow */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   background-color: white;
@@ -40,17 +43,33 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  pointer-events: none; /* Ensure clicks pass through to the select element */
+  pointer-events: none;
 }
 
 .searchButton {
   width: 100%;
-  height: 40px;
-  font-size: 14px;
+  margin-top: 10px;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
-@media (max-width: 768px) {
-  .filterSelect, .searchButton {
-    margin-top: 10px;
+.searchButton:hover, .searchButton:focus {
+  background-color: var(--button-hover-color);
+  border-color: var(--button-hover-color);
+}
+
+@media (max-width: 576px) {
+  .filterCol {
+    padding: 0 2px;
+  }
+
+  .filterSelect select {
+    font-size: 12px;
+    padding: 8px;
+    padding-right: 25px;
+  }
+
+  .selectIcon {
+    right: 5px;
   }
 }

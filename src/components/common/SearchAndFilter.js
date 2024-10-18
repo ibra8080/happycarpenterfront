@@ -41,8 +41,8 @@ const SearchAndFilter = ({ onSearch }) => {
           </Form.Group>
         </Col>
       </Row>
-      <Row>
-        <Col md={4}>
+      <Row className="mb-3">
+        <Col xs={6} className={styles.filterCol}>
           <Form.Group className={styles.filterSelect}>
             <div className={styles.selectWrapper}>
               <Form.Control
@@ -65,7 +65,7 @@ const SearchAndFilter = ({ onSearch }) => {
             </div>
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col xs={6} className={styles.filterCol}>
           <Form.Group className={styles.filterSelect}>
             <div className={styles.selectWrapper}>
               <Form.Control
@@ -83,7 +83,9 @@ const SearchAndFilter = ({ onSearch }) => {
             </div>
           </Form.Group>
         </Col>
-        <Col md={4}>
+      </Row>
+      <Row>
+        <Col>
           <Button type="submit" className={styles.searchButton}>Search</Button>
         </Col>
       </Row>
