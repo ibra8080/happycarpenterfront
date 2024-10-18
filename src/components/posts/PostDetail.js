@@ -194,38 +194,40 @@ const PostDetail = ({ user }) => {
           ) : (
             <>
               <Card.Title>{post.title}</Card.Title>
-              <Card.Text>{post.content}</Card.Text>
-              <Card.Text>
-                Posted by: <Link to={`/profile/${post.owner}`}>{post.owner}</Link>
-              </Card.Text>
+              <Card.Text>{post.content}</Card.Text>  
               <div className={styles.postActions}>
-                <Button 
-                  variant={liked ? "danger" : "outline-danger"} 
+                <button 
                   onClick={handleLike}
                   className={styles.actionButton}
                 >
-                  <FaHeart /> {post.likes_count || 0}
-                </Button>
-                <Button variant="outline-secondary" className={styles.actionButton}>
+                  <FaHeart color={liked ? "var(--primary-color)" : "inherit"} /> {post.likes_count || 0}
+                </button>
+                <button className={styles.actionButton}>
                   <FaComment /> {comments.length}
-                </Button>
+                </button>
                 {user && user.username === post.owner && (
                   <>
-                    <Button variant="outline-primary" onClick={handleEdit} className={styles.actionButton}>
+                    <button onClick={handleEdit} className={styles.actionButton}>
                       <FaEdit /> Edit
-                    </Button>
-                    <Button variant="outline-danger" onClick={() => setShowDeleteModal(true)} className={styles.actionButton}>
+                    </button>
+                    <button onClick={() => setShowDeleteModal(true)} className={styles.actionButton}>
                       <FaTrash /> Delete
-                    </Button>
+                    </button>
                   </>
                 )}
+              </div>
+              <div className={styles.postMeta}>
+                <span className={styles.postDate}>{formatDate(post.created_at)}</span>
+                <span className={styles.postAuthor}>
+                  Posted by: <Link to={`/profile/${post.owner}`}>{post.owner}</Link>
+                </span>
               </div>
               {likeError && <Alert variant="danger">{likeError}</Alert>}
             </>
           )}
         </Card.Body>
       </Card>
-
+  
       <div className={styles.commentsSection}>
         <h4 className={styles.commentsTitle}>Comments</h4>
         {user ? (
@@ -262,7 +264,7 @@ const PostDetail = ({ user }) => {
           formatDate={formatDate}
         />
       </div>
-
+  
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>
@@ -278,7 +280,7 @@ const PostDetail = ({ user }) => {
         </Modal.Footer>
       </Modal>
     </div>
-  );
+  );  
 };
 
 export default PostDetail;

@@ -6,12 +6,28 @@
 
 .postDetailCard {
   margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
 }
 
 .postImage {
   max-height: 400px;
   object-fit: cover;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+.postMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  font-size: small;
+  color: var(--light-text-color);
+}
+
+.postAuthor {
+  margin-left: auto;
 }
 
 .postActions {
@@ -21,14 +37,23 @@
 }
 
 .actionButton {
-  margin-right: 10px;
+  margin-right: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  transition: var(--transition);
 }
 
 .actionButton svg {
   margin-right: 5px;
+}
+
+.actionButton:hover {
+  opacity: 0.8;
+  color: var(--button-hover-color);
 }
 
 .commentsSection {
@@ -39,80 +64,4 @@
   font-size: 1.2rem;
   color: var(--primary-color);
   margin-bottom: 15px;
-}
-
-
-.backLink {
-  display: inline-block;
-  margin-bottom: 20px;
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-.backLink:hover {
-  text-decoration: underline;
-}
-
-.loadingSpinner {
-  text-align: center;
-  margin-top: 50px;
-  font-size: 18px;
-  color: var(--secondary-color);
-}
-
-
-.commentsTitle {
-  font-size: 1.2rem;
-  color: var(--primary-color);
-  margin-bottom: 15px;
-}
-.authButton {
-  width: 100%;
-  padding: 10px;
-  background-color: var(--primary-color) !important;
-  color: white;
-  border: none !important;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.authButton:hover {
-  background-color: var(--secondary-color) !important;
-}
-
-.actionButton {
-  padding: 5px 10px !important;
-  font-size: 0.8rem !important;
-  color: #D69723 !important;
-  border: none !important;
-}
-
-.actionButton:hover {
-  color: #a60d0d !important;
-  background-color: transparent !important;
-  border: none !important;
-}
-
-.actionButton svg {
-  margin-right: 5px !important;
-}
-
-.postForm {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.imagePreviewContainer {
-  position: relative;
-}
-
-.removeImageButton {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  padding: 2px;
-  line-height: 1;
 }
