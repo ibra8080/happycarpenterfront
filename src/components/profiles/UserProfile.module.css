@@ -73,3 +73,35 @@ Form.Control {
   border: 1px solid #ced4da;
   border-radius: 4px;
 }
+
+.postStat {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--light-text-color);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  border-radius: var(--border-radius);
+}
+
+.postStat:hover {
+  background-color: rgba(166, 13, 13, 0.1);
+  color: var(--primary-color);
+}
+
+.likedIcon {
+  color: var(--primary-color);
+}
+
+.readMoreLink {
+  color: var(--secondary-color);
+  transition: var(--transition);
+}
+
+.readMoreLink:hover {
+  color: var(--primary-color);
+}
