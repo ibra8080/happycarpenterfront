@@ -1,18 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
-import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaPlusSquare, FaBriefcase, FaClipboardList } from 'react-icons/fa';
+import { FaHome, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaPlusSquare, FaBriefcase, FaClipboardList, FaUserFriends } from 'react-icons/fa';
 import logo from '../../assets/images/happycarpenterlogo.png';
 import styles from './Header.module.css';
 
 const Header = ({ user, onLogout, isMobile, followers }) => {
   return (
-    <Navbar bg="light" expand="lg" className={`${styles.navbar} fixed-top`}>
+    <Navbar expand="lg" className={`${styles.navbar} fixed-top`}>
       <Container>
         <Navbar.Brand as={Link} to="/" className={styles.navbarBrand}>
           <img
             src={logo}
-            height="50"
+            height={isMobile ? "30" : "50"}
             className="d-inline-block align-top"
             alt="Happy Carpenter Logo"
           />
@@ -42,12 +42,25 @@ const Header = ({ user, onLogout, isMobile, followers }) => {
                   {user.username || 'User'}
                 </Nav.Link>
                 {isMobile && (
-                  <NavDropdown title="I follow" id="basic-nav-dropdown" className={styles.navLink}>
-                    {followers && followers.map(follow => (
-                      <NavDropdown.Item key={follow.id} as={Link} to={`/profile/${follow.followed}`}>
-                        {follow.followed}
-                      </NavDropdown.Item>
-                    ))}
+                  <NavDropdown 
+                    title={<><FaUserFriends /> <span className={styles.ifollowText}>I follow</span></>} 
+                    id="basic-nav-dropdown" 
+                    className={`${styles.navLink} ${styles.followDropdown} ${styles.ifollow}`}
+                  >
+                    {followers && followers.length > 0 ? (
+                      followers.map(follow => (
+                        <NavDropdown.Item 
+                          key={follow.id} 
+                          as={Link} 
+                          to={`/profile/${follow.followed}`}
+                          className={styles.followItem}
+                        >
+                          {follow.followed}
+                        </NavDropdown.Item>
+                      ))
+                    ) : (
+                      <NavDropdown.Item className={styles.followItem}>You're not following anyone yet.</NavDropdown.Item>
+                    )}
                   </NavDropdown>
                 )}
                 <Nav.Link onClick={onLogout} className={styles.navLink}><FaSignOutAlt /> Logout</Nav.Link>

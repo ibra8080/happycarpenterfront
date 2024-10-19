@@ -1,5 +1,5 @@
 .navbar {
-  background-color: var(--background-color) !important;
+  background-color: var(--light-background-color) !important;
   padding-top: 0;
   padding-bottom: 0;
   border-bottom: 1px solid var(--primary-color);
@@ -38,7 +38,69 @@
   margin-right: 10px;
   object-fit: cover;
 }
-
-:global(body) {
-  padding-top: 70px; 
+.dropdown-toggle::after {
+  color: var(--secondary-color) !important;
+  border-top-color: var(--secondary-color) !important;
 }
+
+.followDropdown .dropdown-toggle::after {
+  display: none;
+}
+
+.followDropdown .dropdown-menu {
+  color: var(--secondry-color);
+}
+
+.followItem {
+  color: var(--secondary-color) !important;
+  transition: var(--transition);
+  padding: 10px 15px !important;
+}
+
+.followItem:hover {
+  background-color: var(--primary-color) !important;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 5px 0;
+  }
+
+  .navbarBrand img {
+    max-width: 180px;
+  }
+
+  .navbar-toggler {
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+  }
+
+  .navbar-toggler-icon {
+    width: 1.2em;
+    height: 1.2em;
+  }
+
+  .navLink {
+    padding: 10px 5px !important;
+  }
+
+  .profileImage {
+    width: 25px;
+    height: 25px;
+  }
+
+  .followDropdown {
+    width: 100%;
+  }
+
+  .followDropdown .dropdown-menu {
+    width: 100%;
+    color: var(--secondary-color) !important;
+  }
+
+  .ifollow .ifollowText {
+    color: var(--secondary-color) !important;
+  }
+  
+}
+
