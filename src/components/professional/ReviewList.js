@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ListGroup, Alert, Button, Modal } from 'react-bootstrap';
+import { FaStar } from 'react-icons/fa';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import ReviewForm from '../reviews/ReviewForm';
+import styles from './ReviewList.module.css';
 
 const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   const [reviews, setReviews] = useState([]);
@@ -87,6 +89,12 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
     setReviewToEdit(null);
   };
 
+  const renderStarRating = (rating) => {
+    return [...Array(5)].map((star, index) => (
+      <FaStar key={index} className={index < rating ? styles.starFilled : styles.starEmpty} />
+    ));
+  };
+
   if (loading) {
     return <div>Loading reviews...</div>;
   }
@@ -97,28 +105,38 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
 
   return (
     <div>
-      <h2>Reviews {userHasReviewed && '(You have reviewed)'}</h2>
+      <h5 className={styles.sectionTitle}>Reviews {userHasReviewed && '(You have reviewed)'}</h5>
       {loading ? (
         <p>Loading reviews...</p>
       ) : localError ? (
         <Alert variant="danger">{localError}</Alert>
       ) : reviews.length > 0 ? (
-        <ListGroup>
+        <ListGroup variant="flush">
           {reviews.map(review => (
-            <ListGroup.Item key={review.id}>
-              <p>Rating: {review.rating}/5</p>
-              <p>{review.content}</p>
-              <small>By: <Link to={`/profile/${review.owner}`}>{review.owner}</Link></small>
+            <ListGroup.Item key={review.id} className={styles.reviewItem}>
+              <div className={styles.reviewHeader}>
+                <Link to={`/profile/${review.owner}`} className={styles.reviewAuthor}>{review.owner}</Link>
+                <div className={styles.starRating}>{renderStarRating(review.rating)}</div>
+              </div>
+              <p className={styles.reviewContent}>{review.content}</p>
               {user.username === review.owner && (
-                <div>
+                <div className={styles.reviewActions}>
                   <Button 
                     variant="outline-primary" 
                     size="sm" 
                     onClick={() => openEditModal(review)}
+                    className={styles.actionButton}
                   >
                     Edit
                   </Button>
-                  <Button variant="outline-danger" size="sm" onClick={() => openDeleteModal(review.id)}>Delete</Button>
+                  <Button 
+                    variant="outline-danger" 
+                    size="sm" 
+                    onClick={() => openDeleteModal(review.id)}
+                    className={styles.actionButton}
+                  >
+                    Delete
+                  </Button>
                 </div>
               )}
             </ListGroup.Item>
