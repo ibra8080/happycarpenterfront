@@ -4,104 +4,109 @@
   padding: 20px;
 }
 
-.profileImage {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 50%;
+.profileImageContainer {
+  width: 100%;
   margin-bottom: 20px;
+}
+
+.profileImage {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.profileInfo {
+  margin-bottom: 20px;
+}
+
+.profileDetails {
+  margin-bottom: 20px;
+}
+
+.profileDetail {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.detailLabel {
+  margin-right: 10px;
+  margin-left: 5px;
+  color: var(--light-text-color);
+}
+
+.detailValue {
+  color: var(--text-color);
+}
+
+.noData {
+  font-style: italic;
+  color: var(--light-text-color);
 }
 
 .editButton, .submitButton, .cancelButton {
   margin-top: 10px;
+  width: 100%;
 }
 
 .editButton {
-  background-color: var(--secondary-color) !important;
-  border: none !important;
+  background-color: var(--primary-color);
+  border: none;
 }
 
 .editButton:hover {
-  background-color: var(--primary-color) !important;
+  background-color: var(--secondary-color);
 }
 
 .submitButton {
-  background-color: var(--secondary-color) !important;
-  border: none !important;
+  background-color: var(--secondary-color);
+  border: none;
 }
 
 .submitButton:hover {
-  background-color: var(--primary-color) !important;
+  background-color: var(--primary-color);
 }
 
 .cancelButton {
-  background-color: #6c757d !important;
-  border: none !important;
+  background-color: #6c757d;
+  border: none;
   margin-left: 10px;
 }
 
 .cancelButton:hover {
-  background-color: var(--primary-color) !important;
+  background-color: var(--primary-color);
 }
 
-.currentImage {
-  margin-bottom: 10px;
-}
-
-.currentImage img {
-  max-width: 100px;
-  max-height: 100px;
-  object-fit: cover;
-  margin-right: 10px;
-}
-
-Form {
+.followSection {
   margin-top: 20px;
 }
 
-Form.Group {
-  margin-bottom: 15px;
+.followList {
+  border: none;
 }
 
-Form.Label {
-  font-weight: bold;
-}
-
-Form.Control {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-}
-
-.postStat {
+.followItem {
   display: flex;
   align-items: center;
-  margin-right: 15px;
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--light-text-color);
-  text-decoration: none;
-  background: none;
   border: none;
-  padding: 5px 10px;
-  border-radius: var(--border-radius);
+  padding: 10px 0;
 }
 
-.postStat:hover {
-  background-color: rgba(166, 13, 13, 0.1);
-  color: var(--primary-color);
+.followAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
 }
 
-.likedIcon {
-  color: var(--primary-color);
+.reviewButton {
+  background-color: var(--secondary-color);
+  border: none;
+  margin-top: 20px;
 }
 
-.readMoreLink {
-  color: var(--secondary-color);
-  transition: var(--transition);
-}
-
-.readMoreLink:hover {
-  color: var(--primary-color);
+.reviewButton:hover {
+  background-color: var(--primary-color);
 }

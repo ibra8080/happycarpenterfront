@@ -5,6 +5,7 @@ import { useParams, Link } from 'react-router-dom';
 import styles from './UserProfile.module.css';
 import ReviewList from '../professional/ReviewList';
 import Follow from '../common/Follow';
+import { FaUser, FaBriefcase, FaTools, FaLink, FaTags, FaMapMarkerAlt } from 'react-icons/fa';
 
 const UserProfile = ({ user }) => {
   const { username } = useParams();
@@ -13,13 +14,8 @@ const UserProfile = ({ user }) => {
   const [error, setError] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  // Follow-related state
   const [isFollowing, setIsFollowing] = useState(false);
   const [followers, setFollowers] = useState([]);
-  const [following, setFollowing] = useState([]);
-
-  // Form-related state
   const [formData, setFormData] = useState({
     name: '',
     content: '',
@@ -31,14 +27,13 @@ const UserProfile = ({ user }) => {
     interests: [],
     address: ''
   });
-
   const [userHasReviewed, setUserHasReviewed] = useState(false);
 
   // Fetch follow data
   const fetchFollowData = useCallback(async (profileId) => {
     if (!user || !user.token || !profileId) return;
     try {
-      const [followersResponse, followingResponse, isFollowingResponse] = await Promise.all([
+      const [followersResponse] = await Promise.all([
         axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?followed=${username}`, {
           headers: { Authorization: `Bearer ${user.token}` }
         }),
@@ -50,14 +45,25 @@ const UserProfile = ({ user }) => {
         })
       ]);
       
-      setFollowers(followersResponse.data.results || []);
-      setFollowing(followingResponse.data.results || []);
-      setIsFollowing((isFollowingResponse.data.results || []).length > 0);
+      // Fetch all profiles in one request
+      const profilesResponse = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/profiles/', {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+  
+      const profilesMap = new Map(profilesResponse.data.map(profile => [profile.owner, profile]));
+  
+      const mapFollowsToProfiles = (follows) => follows.map(follow => ({
+        ...follow,
+        profile: profilesMap.get(follow.owner) || profilesMap.get(follow.followed) || {}
+      }));
+  
+      setFollowers(mapFollowsToProfiles(followersResponse.data.results));
     } catch (error) {
       console.error('Error fetching follow data:', error);
       setError('Failed to load follow data. Please try again.');
     }
-  }, [user, username]);
+  }, [user, username]);  
+
 
   // Fetch profile data
   const fetchProfile = useCallback(async () => {
@@ -213,6 +219,37 @@ const UserProfile = ({ user }) => {
     );
   }
 
+  const renderProfileDetail = (icon, label, value) => {
+    if (!value) return null;
+    return (
+      <div className={styles.profileDetail}>
+        {icon}
+        <span className={styles.detailLabel}>{label}:</span>
+        <span className={styles.detailValue}>{value}</span>
+      </div>
+    );
+  };
+
+  const renderFollowList = (list, title) => (
+    <div className={styles.followSection}>
+      <h5>{title} ({list.length})</h5>
+      <ListGroup className={styles.followList}>
+        {list.map(follow => (
+          <ListGroup.Item key={follow.id} className={styles.followItem}>
+            <img 
+              src={follow.profile?.image || '/default-avatar.png'} 
+              alt={`${follow.owner || follow.followed}'s avatar`} 
+              className={styles.followAvatar}
+            />
+            <Link to={`/profile/${follow.owner || follow.followed}`}>
+              {follow.owner || follow.followed}
+            </Link>
+          </ListGroup.Item>
+        ))}
+      </ListGroup>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className={styles.profileContainer}>
@@ -333,23 +370,29 @@ const UserProfile = ({ user }) => {
               </Form>
             ) : (
               <>
-                <Card.Title>{profile.name}</Card.Title>
                 {profile.image && (
-                  <Card.Img src={profile.image} alt={profile.name} className={styles.profileImage} />
+                  <div className={styles.profileImageContainer}>
+                    <img src={profile.image} alt={profile.name} className={styles.profileImage} />
+                  </div>
                 )}
-                <Card.Text>{profile.content}</Card.Text>
-                <p><strong>User Type:</strong> {profile.user_type}</p>
-                {profile.user_type === 'professional' && (
-                  <>
-                    <p><strong>Years of Experience:</strong> {profile.years_of_experience}</p>
-                    <p><strong>Specialties:</strong> {profile.specialties}</p>
-                    <p><strong>Portfolio:</strong> {profile.portfolio_url && (
-                      <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer">{profile.portfolio_url}</a>
-                    )}</p>
-                  </>
+                <div className={styles.profileInfo}>
+                  <Card.Title>{profile.name}</Card.Title>
+                  <Card.Text>{profile.content}</Card.Text>
+                </div>
+                <div className={styles.profileDetails}>
+                  {renderProfileDetail(<FaUser />, "User Type", profile.user_type)}
+                  {renderProfileDetail(<FaBriefcase />, "Years of Experience", profile.years_of_experience)}
+                  {renderProfileDetail(<FaTools />, "Specialties", profile.specialties)}
+                  {profile.portfolio_url && renderProfileDetail(<FaLink />, "Portfolio", 
+                    <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer">{profile.portfolio_url}</a>
+                  )}
+                  {profile.interests && profile.interests.length > 0 && renderProfileDetail(<FaTags />, "Interests", profile.interests.join(', '))}
+                  {renderProfileDetail(<FaMapMarkerAlt />, "Address", profile.address)}
+                </div>
+                {!profile.user_type && !profile.years_of_experience && !profile.specialties && 
+                 !profile.portfolio_url && (!profile.interests || profile.interests.length === 0) && !profile.address && (
+                  <p className={styles.noData}>There is no additional profile data to show.</p>
                 )}
-                <p><strong>Interests:</strong> {profile.interests.join(', ')}</p>
-                <p><strong>Address:</strong> {profile.address}</p>
                 <div className={styles.profileActions}>
                   {isOwnProfile && (
                     <Button onClick={() => setEditMode(true)} className={styles.editButton}>
@@ -365,22 +408,7 @@ const UserProfile = ({ user }) => {
                     />
                   )}
                 </div>
-                <p>Followers ({followers.length})</p>
-                <ListGroup className={styles.followList}>
-                  {followers.map(follower => (
-                    <ListGroup.Item key={follower.id}>
-                      <Link to={`/profile/${follower.owner}`}>{follower.owner}</Link>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-                <h4>Following ({following.length})</h4>
-                <ListGroup className={styles.followList}>
-                  {following.map(followed => (
-                    <ListGroup.Item key={followed.id}>
-                      <Link to={`/profile/${followed.followed}`}>{followed.followed}</Link>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
+                {renderFollowList(followers, 'Followers')}
               </>
             )
           ) : (
@@ -390,7 +418,7 @@ const UserProfile = ({ user }) => {
             <>
               {user && user.username !== profile.owner && !userHasReviewed && (
                 <Link to={`/review/${profile.owner}`}>
-                  <Button variant="primary" className="mt-3">Leave a Review</Button>
+                  <Button variant="primary" className={styles.reviewButton}>Leave a Review</Button>
                 </Link>
               )}
               <ReviewList 
