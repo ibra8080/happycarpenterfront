@@ -1,0 +1,51 @@
+.reviewItem {
+    border: none;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+.sectionTitle {
+    margin-top: 10px;
+}
+
+.reviewItem:last-child {
+  border-bottom: none;
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.reviewAuthor {
+  font-weight: bold;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.starRating {
+  display: flex;
+}
+
+.starFilled {
+  color: #ffc107;
+}
+
+.starEmpty {
+  color: #e4e5e9;
+}
+
+.reviewContent {
+  margin-bottom: 10px;
+}
+
+.reviewActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actionButton {
+  margin-left: 10px;
+}

@@ -72,6 +72,7 @@
   background-color: #6c757d;
   border: none;
   margin-left: 10px;
+  width: 100%;
 }
 
 .cancelButton:hover {
@@ -82,15 +83,12 @@
   margin-top: 20px;
 }
 
-.followList {
-  border: none;
-}
-
 .followItem {
   display: flex;
   align-items: center;
   border: none;
   padding: 10px 0;
+  border: none !important;
 }
 
 .followAvatar {
@@ -105,6 +103,7 @@
   background-color: var(--secondary-color);
   border: none;
   margin-top: 20px;
+  width: 100%;
 }
 
 .reviewButton:hover {
