@@ -1,42 +1,40 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Button, Alert, Form, Image } from 'react-bootstrap';
+import { ListGroup, Button, Alert, Form, Image, Spinner } from 'react-bootstrap';
+import { FaDollarSign, FaClipboardCheck, FaComment, FaUser, FaMapMarkerAlt } from 'react-icons/fa';
 import axios from 'axios';
+import styles from './JobOfferList.module.css';
+import { Link } from 'react-router-dom';
+
 
 const JobOfferList = ({ user, setError, isProfessionalView = false }) => {
-  console.log('JobOfferList component mounted', user);
   const [jobOffers, setJobOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [localError, setLocalError] = useState(null);
   const [feedback, setFeedback] = useState('');
 
   const fetchJobOffers = useCallback(async () => {
-    console.log('Attempting to fetch job offers');
     try {
       setLoading(true);
       const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/', {
         headers: { Authorization: `Bearer ${user.token}` },
         params: { role: isProfessionalView ? 'professional' : 'client' }
       });
-      console.log('Job offers response:', response.data);
-      if (Array.isArray(response.data)) {
-        setJobOffers(response.data);
-      } else if (response.data && Array.isArray(response.data.results)) {
-        setJobOffers(response.data.results);
-      } else {
-        console.error('Unexpected API response format:', response.data);
-        setLocalError('Unexpected data format received from the server.');
-      }
+      
+      console.log('API Response:', response.data);
+      
+      let offersData = Array.isArray(response.data) ? response.data : (response.data.results || []);
+      setJobOffers(offersData);
       setError(null);
     } catch (error) {
-      console.error('Error fetching job offers:', error.response || error);
+      console.error('Error fetching job offers:', error);
       setLocalError('Failed to fetch job offers. Please try again later.');
+      setJobOffers([]);
     } finally {
       setLoading(false);
     }
   }, [user.token, setError, isProfessionalView]);
 
   useEffect(() => {
-    console.log('JobOfferList useEffect triggered');
     fetchJobOffers();
   }, [fetchJobOffers]);
 
@@ -54,38 +52,75 @@ const JobOfferList = ({ user, setError, isProfessionalView = false }) => {
     }
   };
 
-  if (loading) return <div>Loading job offers...</div>;
+  if (loading) return <Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner>;
   if (localError) return <Alert variant="danger">{localError}</Alert>;
 
   return (
-    <div>
+    <div className={styles.jobOfferListContainer}>
       <h2>{isProfessionalView ? "Received Job Offers" : "Your Job Offers"}</h2>
       {jobOffers.length === 0 ? (
         <Alert variant="info">You don't have any job offers yet.</Alert>
       ) : (
         <ListGroup>
           {jobOffers.map(offer => (
-            <ListGroup.Item key={offer.id}>
-              <div className="d-flex">
-                {offer.advertisement && offer.advertisement.image && (
-                  <Image src={offer.advertisement.image} alt={offer.advertisement.title} style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '15px' }} />
-                )}
-                <div>
-                  <h5>{offer.title}</h5>
-                  <p>{offer.description}</p>
-                  <p>Budget: ${offer.budget}</p>
-                  <p>Status: {offer.status}</p>
-                  {offer.feedback && <p>Feedback: {offer.feedback}</p>}
-                  {offer.advertisement && <p>Related to advertisement: {offer.advertisement.title}</p>}
-                  {isProfessionalView ? (
-                    <p>Client: {offer.client}</p>
-                  ) : (
-                    <p>Professional: {offer.professional}</p>
+            <ListGroup.Item key={offer.id} className={styles.offerItem}>
+              {offer.advertisement && offer.advertisement.image && (
+                <div className={styles.offerImageContainer}>
+                  <Image 
+                    src={offer.advertisement.image} 
+                    alt={offer.advertisement.title || 'Advertisement Image'} 
+                    className={styles.offerImage}
+                  />
+                </div>
+              )}
+              <div className={styles.offerContent}>
+                <h5>{offer.title}</h5>
+                <p>{offer.description}</p>
+                <div className={styles.offerDetails}>
+                  <span className={styles.offerDetail}>
+                    <FaDollarSign className={styles.icon} /> 
+                    <span className={styles.detailLabel}>Budget:</span> 
+                    <span className={styles.detailValue}>${offer.budget}</span>
+                  </span>
+                  <span className={styles.offerDetail}>
+                    <FaClipboardCheck className={styles.icon} /> 
+                    <span className={styles.detailLabel}>Status:</span> 
+                    <span className={styles.detailValue}>{offer.status}</span>
+                  </span>
+                  {offer.feedback && (
+                    <span className={styles.offerDetail}>
+                      <FaComment className={styles.icon} /> 
+                      <span className={styles.detailLabel}>Feedback:</span> 
+                      <span className={styles.detailValue}>{offer.feedback}</span>
+                    </span>
+                  )}
+                  <span className={styles.offerDetail}>
+                    <FaUser className={styles.icon} /> 
+                    <span className={styles.detailLabel}>
+                      {isProfessionalView ? "Client:" : "Professional:"}
+                    </span> 
+                    <span className={styles.detailValue}>
+                      {isProfessionalView ? (
+                        offer.client
+                      ) : (
+                        <Link to={`/profile/${offer.professional.username}`}>
+                          {offer.professional.username}
+                        </Link>
+                      )}
+                    </span>
+                  </span>
+                  {offer.advertisement && offer.advertisement.place && (
+                    <span className={styles.offerDetail}>
+                      <FaMapMarkerAlt className={styles.icon} /> 
+                      <span className={styles.detailLabel}>Location:</span> 
+                      <span className={styles.detailValue}>{offer.advertisement.place}</span>
+                    </span>
                   )}
                 </div>
+                {!offer.advertisement?.image && <p className={styles.missingImage}>Advertisement Image: Missing</p>}
               </div>
               {isProfessionalView && offer.status === 'pending' && (
-                <Form>
+                <Form className={styles.offerActions}>
                   <Form.Group className="mb-3">
                     <Form.Label>Feedback</Form.Label>
                     <Form.Control 
