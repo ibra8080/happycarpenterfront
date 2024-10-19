@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Alert, ProgressBar, Image } from 'react-bootstrap';
+import { Form, Button, Alert, ProgressBar, Image, Row, Col } from 'react-bootstrap';
+import { FaChevronDown } from 'react-icons/fa';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './PostForm.module.css';
@@ -131,20 +132,23 @@ const PostForm = () => {
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Work Type</Form.Label>
-          <Form.Control 
-            as="select" 
-            name="image_filter"
-            value={formData.image_filter}
-            onChange={handleChange}
-          >
-            <option value="furniture">Furniture</option>
-            <option value="antiques">Antiques</option>
-            <option value="renovation&repair">Renovation & Repair</option>
-            <option value="artworks">Artworks</option>
-            <option value="tools">Tools</option>
-            <option value="construction">Construction</option>
-            <option value="other">Other</option>
-          </Form.Control>
+          <div className={styles.selectWrapper}>
+            <Form.Control 
+              as="select" 
+              name="image_filter"
+              value={formData.image_filter}
+              onChange={handleChange}
+            >
+              <option value="furniture">Furniture</option>
+              <option value="antiques">Antiques</option>
+              <option value="renovation&repair">Renovation & Repair</option>
+              <option value="artworks">Artworks</option>
+              <option value="tools">Tools</option>
+              <option value="construction">Construction</option>
+              <option value="other">Other</option>
+            </Form.Control>
+            <FaChevronDown className={styles.selectIcon} />
+          </div>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Content</Form.Label>
@@ -159,12 +163,18 @@ const PostForm = () => {
           />
           <Form.Text>{formData.content.length} characters (minimum 10)</Form.Text>
         </Form.Group>
-        <Button variant="primary" type="submit" disabled={isLoading}>
-          {isLoading ? 'Creating Post...' : 'Create Post'}
-        </Button>
-        <Button variant="secondary" onClick={() => navigate(-1)} className="ml-2">
-          Cancel
-        </Button>
+        <Row className={styles.buttonRow}>
+          <Col xs={12} md={6} className="mb-2 mb-md-0">
+            <Button variant="primary" type="submit" className={styles.submitButton} disabled={isLoading}>
+              {isLoading ? 'Creating Post...' : 'Create Post'}
+            </Button>
+          </Col>
+          <Col xs={12} md={6}>
+            <Button variant="secondary" onClick={() => navigate(-1)} className={styles.cancelButton}>
+              Cancel
+            </Button>
+          </Col>
+        </Row>
       </Form>
       {isLoading && <ProgressBar animated now={100} className="mt-3" />}
     </div>
@@ -172,3 +182,4 @@ const PostForm = () => {
 };
 
 export default PostForm;
+

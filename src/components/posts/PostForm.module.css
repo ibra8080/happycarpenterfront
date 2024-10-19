@@ -2,7 +2,7 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #fff;
+  background-color: var(--light-background-color);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
 }
@@ -16,8 +16,23 @@
   margin-bottom: 15px;
 }
 
-.postForm button[type="submit"] {
+.selectWrapper {
+  position: relative;
+}
+
+.selectIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.buttonRow {
   margin-top: 20px;
+}
+
+.submitButton, .cancelButton {
   width: 100%;
 }
 
@@ -27,4 +42,14 @@
   object-fit: cover;
   margin-top: 10px;
   border-radius: var(--border-radius);
+}
+
+@media (max-width: 767px) {
+  .buttonRow {
+    flex-direction: column-reverse;
+  }
+  
+  .cancelButton {
+    margin-bottom: 10px;
+  }
 }
