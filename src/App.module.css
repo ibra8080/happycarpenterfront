@@ -7,7 +7,7 @@
 
 .Main {
   flex: 1;
-  padding: 20px 0;
+  padding: 70px 0;
 }
 
 .leftSidebar {
@@ -29,6 +29,6 @@
   }
   
   .Main {
-    padding: 10px 0;
+    padding: 50px 0;
   }
 }
