@@ -1,0 +1,113 @@
+  .dashboardContainer {
+    background-color: var(--background-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+  
+  .dashboardTitle {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+  }
+  
+  .tabNav {
+    margin-bottom: 20px;
+  }
+  
+  .tabNav .nav-link {
+    color: var(--secondary-color);
+  }
+  
+  .tabNav .nav-link.active {
+    color: var(--primary-color);
+    font-weight: bold;
+    border-bottom: 2px solid var(--primary-color);
+  }
+  
+  .tabContent {
+    background-color: var(--background-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+  }
+  
+  .advertisementGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .advertisementCard {
+    background-color: var(--light-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: var(--transition);
+  }
+  
+  .advertisementCard:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .advertisementImage {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .advertisementContent {
+    padding: 15px;
+  }
+  
+  .advertisementTitle {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+  }
+  
+  .advertisementDescription {
+    color: var(--text-color);
+    margin-bottom: 10px;
+  }
+  
+  .advertisementPlace {
+    color: var(--light-text-color);
+    font-style: italic;
+  }
+  
+  .advertisementActions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+  
+  .actionButton {
+    padding: 5px 10px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .editButton {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+  
+  .editButton:hover {
+    background-color: var(--button-hover-color);
+  }
+  
+  .deleteButton {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .deleteButton:hover {
+    opacity: 0.8;
+  }
+  
+  @media (max-width: 768px) {
+    .advertisementGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+  

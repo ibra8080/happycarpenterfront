@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Nav, Alert } from 'react-bootstrap';
+import { Container, Nav, Alert } from 'react-bootstrap';
 import AdvertisementList from './AdvertisementList';
 import ReviewList from './ReviewList';
 import JobOfferList from './JobOfferList';
+import styles from './ProfessionalDashboard.module.css';
 
 const ProfessionalDashboard = ({ user }) => {
-  console.log('Rendering ProfessionalDashboard', user);
   const [activeTab, setActiveTab] = useState('advertisements');
   const [error, setError] = useState(null);
 
@@ -27,44 +27,54 @@ const ProfessionalDashboard = ({ user }) => {
   }
 
   return (
-    <Container>
-      <h1>Professional Dashboard</h1>
+    <Container className={styles.dashboardContainer}>
+      <h1 className={styles.dashboardTitle}>Professional Dashboard</h1>
       {error && <Alert variant="danger">{error}</Alert>}
-      <Nav variant="tabs" defaultActiveKey="advertisements">
+      <Nav variant="tabs" className={styles.tabNav} defaultActiveKey="advertisements">
         <Nav.Item>
-          <Nav.Link eventKey="advertisements" onClick={() => handleTabChange('advertisements')}>
+          <Nav.Link 
+            eventKey="advertisements" 
+            onClick={() => handleTabChange('advertisements')}
+            className={activeTab === 'advertisements' ? styles.active : ''}
+          >
             Advertisements
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link eventKey="reviews" onClick={() => handleTabChange('reviews')}>
+          <Nav.Link 
+            eventKey="reviews" 
+            onClick={() => handleTabChange('reviews')}
+            className={activeTab === 'reviews' ? styles.active : ''}
+          >
             Reviews
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link eventKey="jobOffers" onClick={() => handleTabChange('jobOffers')}>
+          <Nav.Link 
+            eventKey="jobOffers" 
+            onClick={() => handleTabChange('jobOffers')}
+            className={activeTab === 'jobOffers' ? styles.active : ''}
+          >
             Job Offers
           </Nav.Link>
         </Nav.Item>
       </Nav>
-      <Row className="mt-3">
-        <Col>
-          {activeTab === 'advertisements' && (
-            <AdvertisementList user={user} setError={setError} />
-          )}
-          {activeTab === 'reviews' && (
-            <ReviewList 
-              user={user} 
-              setError={setError}
-              professionalUsername={user.username}
-              onReviewStatusChange={handleReviewStatusChange}
-            />
-          )}
-          {activeTab === 'jobOffers' && (
-            <JobOfferList user={user} setError={setError} isProfessionalView={true} />
-          )}
-        </Col>
-      </Row>
+      <div className={styles.tabContent}>
+        {activeTab === 'advertisements' && (
+          <AdvertisementList user={user} setError={setError} />
+        )}
+        {activeTab === 'reviews' && (
+          <ReviewList 
+            user={user} 
+            setError={setError}
+            professionalUsername={user.username}
+            onReviewStatusChange={handleReviewStatusChange}
+          />
+        )}
+        {activeTab === 'jobOffers' && (
+          <JobOfferList user={user} setError={setError} isProfessionalView={true} />
+        )}
+      </div>
     </Container>
   );
 };
