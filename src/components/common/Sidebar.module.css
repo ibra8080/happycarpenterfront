@@ -1,17 +1,26 @@
 .sidebar {
-  padding: 15px;
+  padding: 20px;
+  background-color: var(--sbackground-color);
+  height: 100%;
 }
 
 .userProfile {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .userAvatar {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
+  margin-bottom: 15px;
+}
+
+.username {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+  font-weight: bold;
 }
 
 .sidebarList {
@@ -21,13 +30,25 @@
 }
 
 .sidebarList li {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .sidebarList a {
   text-decoration: none;
-  color: inherit;
-  font-weight: bold;
+  color: var(--text-color);
+  font-weight: 300;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.sidebarList a:hover {
+  color: var(--primary-color);
+}
+
+.sidebarList a svg {
+  margin-right: 10px;
+  font-size: 1.2rem;
 }
 
 .followingList {
@@ -38,26 +59,32 @@
 .followingItem {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .followingItem a {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: inherit;
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.followingItem a:hover {
+  color: var(--primary-color);
 }
 
 .followingAvatar {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   margin-right: 10px;
   object-fit: cover;
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    margin-bottom: 20px;
-  }
+.followingHeader {
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-weight: bold;
 }

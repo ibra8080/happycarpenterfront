@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import styles from './Sidebar.module.css';
+import { FaUser, FaPlusSquare, FaClipboardList, FaBriefcase } from 'react-icons/fa';
 
 const Sidebar = ({ user }) => {
   const [following, setFollowing] = useState([]);
@@ -70,18 +71,19 @@ const Sidebar = ({ user }) => {
               alt={`${user.username}'s avatar`} 
               className={styles.userAvatar}
             />
+            <div className={styles.username}>{user.username}</div>
           </div>
           <ul className={styles.sidebarList}>
-            <li><Link to={`/profile/${user.username}`}>My Profile</Link></li>
-            <li><Link to="/create-post">Create Post</Link></li>
-            <li><Link to="/my-job-offers">My Offers</Link></li>
+            <li><Link to={`/profile/${user.username}`}><FaUser /> My Profile</Link></li>
+            <li><Link to="/create-post"><FaPlusSquare /> Create Post</Link></li>
+            <li><Link to="/my-offers"><FaClipboardList /> My Offers</Link></li>
             {user.isProfessional && (
-              <li><Link to="/professional-dashboard">Pro</Link></li>
+              <li><Link to="/professional-dashboard"><FaBriefcase /> Pro </Link></li>
             )}
           </ul>
         </>
       )}
-      <h3>I follow...</h3>
+      <h3 className={styles.followingHeader}>Following</h3>
       <ul className={styles.followingList}>
         {following.length > 0 ? (
           following.map(follow => (
