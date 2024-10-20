@@ -14,14 +14,15 @@
     margin-bottom: 20px;
   }
   
-  .tabNav .nav-link {
-    color: var(--secondary-color);
+  .navLink {
+    color: var(--primary-color) !important;
   }
   
-  .tabNav .nav-link.active {
-    color: var(--primary-color);
-    font-weight: bold;
-    border-bottom: 2px solid var(--primary-color);
+  .active {
+    color: var(--primary-color) !important;
+    font-weight: bold !important;
+    border-bottom: 1px solid var(--primary-color) !important;
+    background-color: var(--sbackground-color) !important;
   }
   
   .tabContent {
@@ -104,7 +105,7 @@
   .deleteButton:hover {
     opacity: 0.8;
   }
-  
+    
   @media (max-width: 768px) {
     .advertisementGrid {
       grid-template-columns: 1fr;

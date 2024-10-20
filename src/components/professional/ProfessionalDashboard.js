@@ -35,7 +35,7 @@ const ProfessionalDashboard = ({ user }) => {
           <Nav.Link 
             eventKey="advertisements" 
             onClick={() => handleTabChange('advertisements')}
-            className={activeTab === 'advertisements' ? styles.active : ''}
+            className={`${styles.navLink} ${activeTab === 'advertisements' ? styles.active : ''}`}
           >
             Advertisements
           </Nav.Link>
@@ -44,7 +44,7 @@ const ProfessionalDashboard = ({ user }) => {
           <Nav.Link 
             eventKey="reviews" 
             onClick={() => handleTabChange('reviews')}
-            className={activeTab === 'reviews' ? styles.active : ''}
+            className={`${styles.navLink} ${activeTab === 'reviews' ? styles.active : ''}`}
           >
             Reviews
           </Nav.Link>
@@ -53,7 +53,7 @@ const ProfessionalDashboard = ({ user }) => {
           <Nav.Link 
             eventKey="jobOffers" 
             onClick={() => handleTabChange('jobOffers')}
-            className={activeTab === 'jobOffers' ? styles.active : ''}
+            className={`${styles.navLink} ${activeTab === 'jobOffers' ? styles.active : ''}`}
           >
             Job Offers
           </Nav.Link>
