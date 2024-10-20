@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ListGroup, Button, Modal, Alert, Image } from 'react-bootstrap';
+import { Button, Alert, Modal, Image } from 'react-bootstrap';
 import axios from 'axios';
 import AdvertisementForm from './AdvertisementForm';
+import styles from './ProfessionalDashboard.module.css';
 
 const AdvertisementList = ({ user, setError }) => {
   const [advertisements, setAdvertisements] = useState([]);
@@ -60,29 +61,65 @@ const AdvertisementList = ({ user, setError }) => {
         fetchAdvertisements();
       } catch (error) {
         console.error('Error deleting advertisement:', error);
-        setLocalError('Failed to delete advertisement. Please try again.');
+        const errorMessage = error.response?.data?.detail || error.message;
+        setLocalError(`Failed to delete advertisement: ${errorMessage}`);
       }
     }
-  };
-
+  };  
+  
   const handleFormSubmit = async (adData) => {
     try {
+      console.log('Submitting advertisement data:', adData);
+      
+      let response;
       if (editingAd) {
-        await axios.put(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/${editingAd.id}/`, adData, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
+        // If editing and no new image is provided, don't send the image field
+        if (!adData.get('image') || adData.get('image').size === 0) {
+          adData.delete('image');
+        }
+        response = await axios.put(
+          `https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/${editingAd.id}/`, 
+          adData,
+          {
+            headers: { 
+              Authorization: `Bearer ${user.token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
       } else {
-        await axios.post('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', adData, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
+        response = await axios.post(
+          'https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/', 
+          adData,
+          {
+            headers: { 
+              Authorization: `Bearer ${user.token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
       }
+      console.log('Advertisement submitted:', response.data);
       setShowForm(false);
       fetchAdvertisements();
     } catch (error) {
       console.error('Error submitting advertisement:', error);
-      setLocalError('Failed to submit advertisement. Please try again.');
+      if (error.response && error.response.data) {
+        let errorMessage = '';
+        if (typeof error.response.data === 'object') {
+          errorMessage = Object.entries(error.response.data)
+            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+            .join('\n');
+        } else {
+          errorMessage = error.response.data.detail || error.response.data;
+        }
+        setLocalError(`Failed to submit advertisement:\n${errorMessage}`);
+      } else {
+        setLocalError(`Failed to submit advertisement: ${error.message}`);
+      }
     }
   };
+  
 
   if (loading) {
     return <div>Loading advertisements...</div>;
@@ -94,31 +131,44 @@ const AdvertisementList = ({ user, setError }) => {
 
   return (
     <div>
-      <h2>Your Advertisements</h2>
       <Button onClick={handleCreate} className="mb-3">Create New Advertisement</Button>
       {advertisements.length === 0 ? (
         <Alert variant="info">You don't have any advertisements yet.</Alert>
       ) : (
-        <ListGroup>
+        <div className={styles.advertisementGrid}>
           {advertisements.map(ad => (
-            <ListGroup.Item key={ad.id} className="d-flex justify-content-between align-items-center">
-              <div className="d-flex align-items-center">
-                {ad.image && (
-                  <Image src={ad.image} alt={ad.title} style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '15px' }} />
-                )}
-                <div>
-                  <h5>{ad.title}</h5>
-                  <p>{ad.description}</p>
-                  <p>Place: {ad.place}</p>
+            <div key={ad.id} className={styles.advertisementCard}>
+              {ad.image && (
+                <Image 
+                  src={ad.image} 
+                  alt={ad.title} 
+                  className={styles.advertisementImage}
+                />
+              )}
+              <div className={styles.advertisementContent}>
+                <h3 className={styles.advertisementTitle}>{ad.title}</h3>
+                <p className={styles.advertisementDescription}>{ad.description}</p>
+                <p className={styles.advertisementPlace}>Location: {ad.place}</p>
+                <div className={styles.advertisementActions}>
+                  <Button 
+                    variant="outline-primary" 
+                    onClick={() => handleEdit(ad)} 
+                    className={`${styles.actionButton} ${styles.editButton}`}
+                  >
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline-danger" 
+                    onClick={() => handleDelete(ad.id)}
+                    className={`${styles.actionButton} ${styles.deleteButton}`}
+                  >
+                    Delete
+                  </Button>
                 </div>
               </div>
-              <div>
-                <Button variant="outline-primary" onClick={() => handleEdit(ad)} className="mr-2">Edit</Button>
-                <Button variant="outline-danger" onClick={() => handleDelete(ad.id)}>Delete</Button>
-              </div>
-            </ListGroup.Item>
+            </div>
           ))}
-        </ListGroup>
+        </div>
       )}
 
       <Modal show={showForm} onHide={() => setShowForm(false)}>
