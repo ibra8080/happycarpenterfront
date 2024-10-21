@@ -64,11 +64,11 @@ const JobOfferList = ({ user, setError, isProfessionalView = false }) => {
         <ListGroup>
           {jobOffers.map(offer => (
             <ListGroup.Item key={offer.id} className={styles.offerItem}>
-              {offer.advertisement && offer.advertisement.image && (
+              {offer.advertisement_details && offer.advertisement_details.image && (
                 <div className={styles.offerImageContainer}>
                   <Image 
-                    src={offer.advertisement.image} 
-                    alt={offer.advertisement.title || 'Advertisement Image'} 
+                    src={offer.advertisement_details.image} 
+                    alt={offer.advertisement_details.title || 'Advertisement Image'} 
                     className={styles.offerImage}
                   />
                 </div>
@@ -101,23 +101,29 @@ const JobOfferList = ({ user, setError, isProfessionalView = false }) => {
                     </span> 
                     <span className={styles.detailValue}>
                       {isProfessionalView ? (
-                        offer.client
-                      ) : (
-                        <Link to={`/profile/${offer.professional.username}`}>
-                          {offer.professional.username}
+                        <Link to={`/profile/${offer.client.username}`}>
+                          {offer.client.username}
                         </Link>
+                      ) : (
+                        offer.advertisement_details && offer.advertisement_details.owner ? (
+                          <Link to={`/profile/${offer.advertisement_details.owner.username}`}>
+                            {offer.advertisement_details.owner.username}
+                          </Link>
+                        ) : (
+                          'Unknown'
+                        )
                       )}
                     </span>
                   </span>
-                  {offer.advertisement && offer.advertisement.place && (
+                  {offer.advertisement_details && offer.advertisement_details.place && (
                     <span className={styles.offerDetail}>
                       <FaMapMarkerAlt className={styles.icon} /> 
                       <span className={styles.detailLabel}>Location:</span> 
-                      <span className={styles.detailValue}>{offer.advertisement.place}</span>
+                      <span className={styles.detailValue}>{offer.advertisement_details.place}</span>
                     </span>
                   )}
                 </div>
-                {!offer.advertisement?.image && <p className={styles.missingImage}>Advertisement Image: Missing</p>}
+                {!offer.advertisement_details?.image && <p className={styles.missingImage}>Advertisement Image: Missing</p>}
               </div>
               {isProfessionalView && offer.status === 'pending' && (
                 <Form className={styles.offerActions}>

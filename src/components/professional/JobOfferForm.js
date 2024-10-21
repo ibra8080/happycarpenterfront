@@ -37,27 +37,28 @@ const JobOfferForm = ({ user }) => {
       if (!professionalId || !adId) {
         throw new Error('Missing professional ID or advertisement ID');
       }
-
-      const postData = {
+  
+      const dataToSend = {
         ...formData,
         professional: professionalId,
-        advertisement: adId,
-        budget: parseFloat(formData.budget),
+        advertisement: adId
       };
-      console.log('Submitting data:', postData);
-      
-      const response = await axios.post(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/${professionalId}/${adId}/`, 
-        postData,
+  
+      console.log('Submitting data:', dataToSend);
+  
+      const response = await axios.post(
+        'https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/create/', 
+        dataToSend,
         {
           headers: { 
-            'Authorization': `Bearer ${user.token}`,
+            Authorization: `Bearer ${user.token}`,
             'Content-Type': 'application/json'
           }
         }
-      );
-      console.log('Job offer submitted successfully:', response.data);
-      navigate('/'); // Redirect to home page after successful submission
-    } catch (error) {
+      );      
+      console.log('Job offer submitted:', response.data);
+      navigate('/my-job-offers');
+    } catch (error) {  
       console.error('Error submitting job offer:', error);
       console.error('Error response:', error.response?.data);
       const errorMessage = error.response?.data?.detail || 
