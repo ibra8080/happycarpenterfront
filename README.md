@@ -1,13 +1,13 @@
 # [HAPPYCARPENTER](https://happycarpenterfront-128bd5230c8d.herokuapp.com/)
 
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/t/ibra8080/happy-carpenter-front)](https://github.com/ibra8080/happy-carpenter-front/commits/main)
-[![GitHub last commit](https://img.shields.io/github/last-commit/ibra8080/happy-carpenter-front)](https://github.com/ibra8080/happy-carpenter-front/commits/main)
-[![GitHub repo size](https://img.shields.io/github/repo-size/ibra8080/happy-carpenter-front)](https://github.com/ibra8080/happy-carpenter-front)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/t/ibra8080/happycarpenterfront)](https://github.com/ibra8080/happycarpenterfront/commits/main)
+[![GitHub last commit](https://img.shields.io/github/last-commit/ibra8080/happycarpenterfront)](https://github.com/ibra8080/happycarpenterfront/commits/main)
+[![GitHub repo size](https://img.shields.io/github/repo-size/ibra8080/happycarpenterfront)](https://github.com/ibra8080/happycarpenterfront)
 
 
 ![screenshot](src/assets/documentation/readme/resposivness.png)
 
-source: [amiresponsive](https://ui.dev/amiresponsive?url=https://happy-carpenter-front-26472ba73a7c.herokuapp.com)
+source: [amiresponsive](https://ui.dev/amiresponsive?url=https://happycarpenterfront-128bd5230c8d.herokuapp.com/)
 
 Happy Carpenter is a community website for woodworking enthusiasts and professionals. It provides a platform for users to connect, share their projects, offer services, and arrange collaborations within the woodworking community.
 
@@ -21,8 +21,8 @@ Happy Carpenter consists of two main components:
    - Deployed at: [Here](https://happy-carpenter-ebf6de9467cb.herokuapp.com/)
 
 2. Frontend Application: Built with React
-   - Repository: [Happy Carpenter Frontend](https://github.com/ibra8080/happy-carpenter-front)
-   - Deployed at: [Here](https://happy-carpenter-front-26472ba73a7c.herokuapp.com/)
+   - Repository: [Happy Carpenter Frontend](https://github.com/ibra8080/happycarpenterfront/tree/main)
+   - Deployed at: [Here](https://happycarpenterfront-128bd5230c8d.herokuapp.com/)
 
 This README focuses on the frontend application, detailing its features, setup, and usage.
 
