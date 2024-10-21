@@ -187,7 +187,7 @@ Profile
     - Professionals can receive job offers through the platform, creating business opportunities.
     - This feature adds value for skilled woodworkers and clients looking for professional services.
 
-![screenshot](documentation/features/professional.png)
+![screenshot](src/assets/documentation/features/professional.png)
 
 - **Search and Filter**
 
@@ -202,7 +202,7 @@ Profile
     - The entire application is responsive, providing a seamless experience across desktop, tablet, and mobile devices.
     - This ensures that users can access and enjoy the platform regardless of their device, increasing accessibility and user satisfaction.
 
-![screenshot](src/assets/documentation/features/resposivness.png)
+![screenshot](src/assets/documentation/readme/resposivness.png)
 
 ### Future Features
 
