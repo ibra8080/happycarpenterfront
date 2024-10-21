@@ -76,7 +76,7 @@ const Sidebar = ({ user }) => {
           <ul className={styles.sidebarList}>
             <li><Link to={`/profile/${user.username}`}><FaUser /> My Profile</Link></li>
             <li><Link to="/create-post"><FaPlusSquare /> Create Post</Link></li>
-            <li><Link to="/my-offers"><FaClipboardList /> My Offers</Link></li>
+            <li><Link to="/my-job-offers"><FaClipboardList /> My Offers</Link></li>
             {user.isProfessional && (
               <li><Link to="/professional-dashboard"><FaBriefcase /> Pro </Link></li>
             )}
