@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
@@ -25,56 +25,45 @@ function App() {
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [followers, setFollowers] = useState([]);
-  const isMounted = useRef(true);
 
-  // Single useEffect for cleanup
-  useEffect(() => {
-    return () => {
-      isMounted.current = false;
-      authService.cancelPendingRequests();
-    };
-  }, []);
 
-  // Main useEffect for auth initialization
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        setLoading(true);
         const currentUser = await authService.initializeAuth();
-        if (isMounted.current) {
-          setUser(currentUser);
-          setError(null);
-          
-          // Log user info
-          if (currentUser) {
-            console.log('User authenticated:', {
-              token: currentUser.token,
-              profile: currentUser.profile
-            });
-          }
-        }
+        console.log('Initialized user in App:', currentUser);
+        setUser(currentUser);
       } catch (error) {
-        if (isMounted.current) {
-          console.error('Failed to initialize auth:', error);
-          setError('Failed to initialize authentication. Please try again later.');
-        }
+        console.error('Failed to initialize auth:', error);
+        setError('Failed to initialize authentication. Please try again later.');
       } finally {
-        if (isMounted.current) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
     initializeAuth();
   }, []);
 
-  // Interceptor useEffect
+  useEffect(() => {
+    console.log('User state updated in App:', user);
+    if (user) {
+      console.log('User token:', user.token);
+      console.log('User profile:', user.profile);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (error) {
+      console.error('App-level error:', error);
+    }
+  }, [error]);
+
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry && isMounted.current) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
             await authService.refreshToken();
@@ -85,10 +74,8 @@ function App() {
             }
           } catch (refreshError) {
             console.error('Token refresh failed:', refreshError);
-            if (isMounted.current) {
-              authService.logout();
-              setUser(null);
-            }
+            authService.logout();
+            setUser(null);
           }
         }
         return Promise.reject(error);
@@ -100,29 +87,23 @@ function App() {
     };
   }, []);
 
-  // Window resize handler
   useEffect(() => {
     const handleResize = () => {
-      if (isMounted.current) {
-        setIsMobile(window.innerWidth < 768);
-      }
+      setIsMobile(window.innerWidth < 768);
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch followers
   useEffect(() => {
     const fetchFollowers = async () => {
-      if (user && user.token && isMounted.current) {
+      if (user && user.token) {
         try {
           const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/follows/?owner=${user.username}`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
-          if (isMounted.current) {
-            setFollowers(response.data.results || []);
-          }
+          setFollowers(response.data.results || []);
         } catch (error) {
           console.error('Error fetching followers:', error);
         }
