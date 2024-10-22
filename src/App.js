@@ -31,10 +31,8 @@ function App() {
     const initializeAuth = async () => {
       try {
         const currentUser = await authService.initializeAuth();
-        console.log('Initialized user in App:', currentUser);
         setUser(currentUser);
       } catch (error) {
-        console.error('Failed to initialize auth:', error);
         setError('Failed to initialize authentication. Please try again later.');
       } finally {
         setLoading(false);
@@ -45,16 +43,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log('User state updated in App:', user);
     if (user) {
-      console.log('User token:', user.token);
-      console.log('User profile:', user.profile);
     }
   }, [user]);
 
   useEffect(() => {
     if (error) {
-      console.error('App-level error:', error);
     }
   }, [error]);
 
@@ -73,7 +67,6 @@ function App() {
               return axios(originalRequest);
             }
           } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
             authService.logout();
             setUser(null);
           }
@@ -105,7 +98,6 @@ function App() {
           });
           setFollowers(response.data.results || []);
         } catch (error) {
-          console.error('Error fetching followers:', error);
         }
       }
     };

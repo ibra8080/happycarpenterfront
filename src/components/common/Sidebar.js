@@ -43,7 +43,6 @@ const Sidebar = ({ user }) => {
         setFollowing(followingWithProfiles);
         setError(null);
       } catch (err) {
-        console.error('Error fetching data:', err);
         setError('Failed to load data.');
       } finally {
         setLoading(false);

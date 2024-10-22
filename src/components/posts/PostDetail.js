@@ -41,7 +41,6 @@ const PostDetail = ({ user }) => {
           setLiked(likesResponse.data.results.some(like => like.owner === user.username));
         }
       } catch (err) {
-        console.error('Error fetching post and comments:', err);
         setError('Failed to fetch post and comments. Please try again later.');
         setLoading(false);
       }
@@ -74,7 +73,6 @@ const PostDetail = ({ user }) => {
         setPost(prevPost => ({ ...prevPost, likes_count: prevPost.likes_count + 1 }));
       }
     } catch (error) {
-      console.error('Error handling like:', error);
       setLikeError(error.response?.data?.detail || 'An error occurred while processing your like.');
     }
   };
@@ -101,7 +99,6 @@ const PostDetail = ({ user }) => {
       setComments(prevComments => [response.data, ...prevComments]);
       setNewComment('');
     } catch (error) {
-      console.error('Error adding comment:', error);
       if (error.response && error.response.data) {
         setCommentError(Object.values(error.response.data).flat().join(' '));
       } else {
@@ -137,7 +134,6 @@ const PostDetail = ({ user }) => {
       setPost(response.data);
       setIsEditing(false);
     } catch (error) {
-      console.error('Error updating post:', error);
       setError('Failed to update post. Please try again.');
     }
   };
@@ -150,7 +146,6 @@ const PostDetail = ({ user }) => {
       );
       navigate('/');
     } catch (error) {
-      console.error('Error deleting post:', error);
       setError('Failed to delete post. Please try again.');
     }
   };

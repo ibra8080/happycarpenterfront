@@ -28,7 +28,6 @@ const PostList = () => {
 
     try {
       setLoading(true);
-      console.log(`Fetching posts for page ${pageToFetch}, shouldAppend: ${shouldAppend}`);
 
       const currentUser = authService.getCurrentUser();
       const headers = currentUser ? { Authorization: `Bearer ${currentUser.token}` } : {};
@@ -43,25 +42,19 @@ const PostList = () => {
       const urlParams = new URLSearchParams(params);
       const url = `https://happy-carpenter-ebf6de9467cb.herokuapp.com/posts/?${urlParams}`;
       
-      console.log(`API call URL: ${url}`);
       const response = await axios.get(url, { headers });
-      console.log('API Response:', response.data);
 
       const newPosts = response.data.results;
-      console.log(`Fetched ${newPosts.length} new posts for page ${pageToFetch}`);
 
       if (newPosts.length === 0) {
-        console.log('No more posts to fetch');
         setHasMore(false);
       } else {
         setPosts(prevPosts => shouldAppend ? [...prevPosts, ...newPosts] : newPosts);
         setHasMore(!!response.data.next);
         currentPage.current = shouldAppend ? currentPage.current + 1 : 2;
-        console.log(`Updated current page to: ${currentPage.current}`);
       }
       setError(null);
     } catch (err) {
-      console.error('Error fetching posts:', err);
       setError('Failed to fetch posts. Please try again later.');
     } finally {
       setLoading(false);
@@ -108,7 +101,6 @@ const PostList = () => {
         ));
       }
     } catch (error) {
-      console.error('Error handling like:', error);
     }
   }, [user, likedPosts, navigate]);
 

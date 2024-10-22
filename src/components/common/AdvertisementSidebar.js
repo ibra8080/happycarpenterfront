@@ -13,18 +13,15 @@ const AdvertisementSidebar = ({ user }) => {
     const fetchAds = async () => {
       try {
         const response = await axios.get('https://happy-carpenter-ebf6de9467cb.herokuapp.com/advertisements/');
-        console.log('Advertisement API Response:', response.data);
         if (Array.isArray(response.data)) {
           setAds(response.data.slice(0, 5));
         } else if (response.data && Array.isArray(response.data.results)) {
           setAds(response.data.results.slice(0, 5));
         } else {
-          console.error('Unexpected API response format:', response.data);
           setError('Unexpected data format received from the server.');
           setAds([]);
         }
       } catch (err) {
-        console.error('Error fetching ads:', err);
         setError('Failed to load advertisements');
         setAds([]);
       } finally {

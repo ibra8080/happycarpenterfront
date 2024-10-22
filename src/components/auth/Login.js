@@ -28,7 +28,6 @@ const Login = ({ onLogin }) => {
         setError('Login failed. Please try again.');
       }
     } catch (err) {
-      console.error('Login error:', err);
       if (typeof err === 'object' && err !== null) {
         const errorMessages = Object.entries(err)
           .map(([key, value]) => {

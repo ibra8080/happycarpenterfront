@@ -39,7 +39,6 @@ const Register = ({ onRegister }) => {
         userData.password1,
         userData.password2
       );
-      console.log('Registration successful:', response);
       setSuccessMessage('Registration successful! Logging you in...');
       
       onRegister(response);
@@ -47,7 +46,6 @@ const Register = ({ onRegister }) => {
         navigate('/');
       }, 1500);
     } catch (err) {
-      console.error('Registration error:', err);
       if (typeof err === 'object' && err !== null) {
         const errorMessages = Object.entries(err)
           .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)

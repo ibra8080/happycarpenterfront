@@ -11,7 +11,6 @@ const Follow = React.memo(({ targetUserId, currentUser, isFollowing, onFollowCha
     try {
       await onFollowChange(!isFollowing);
     } catch (error) {
-      console.error('Error toggling follow:', error);
     } finally {
       setLoading(false);
     }

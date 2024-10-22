@@ -42,9 +42,7 @@ const CommentList = ({ comments, postId, user, setComments }) => {
       );
       setEditingCommentId(null);
     } catch (error) {
-      console.error('Error updating comment:', error);
       if (error.response) {
-        console.error('Error response:', error.response.data);
       }
     }
   };
@@ -62,7 +60,6 @@ const CommentList = ({ comments, postId, user, setComments }) => {
       setComments(prevComments => prevComments.filter(comment => comment.id !== commentToDelete));
       setShowDeleteModal(false);
     } catch (error) {
-      console.error('Error deleting comment:', error);
     }
   };
 

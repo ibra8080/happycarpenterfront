@@ -18,19 +18,16 @@ const AdvertisementList = ({ user, setError }) => {
         headers: { Authorization: `Bearer ${user.token}` },
         params: { professional: user.id }
       });
-      console.log('API Response:', response.data);
       if (Array.isArray(response.data)) {
         setAdvertisements(response.data);
       } else if (response.data && Array.isArray(response.data.results)) {
         setAdvertisements(response.data.results);
       } else {
-        console.error('Unexpected API response format:', response.data);
         setLocalError('Unexpected data format received from the server.');
         setAdvertisements([]);
       }
       setError(null);
     } catch (error) {
-      console.error('Error fetching advertisements:', error);
       setLocalError('Failed to fetch advertisements. Please try again later.');
       setAdvertisements([]);
     } finally {
@@ -60,7 +57,6 @@ const AdvertisementList = ({ user, setError }) => {
         });
         fetchAdvertisements();
       } catch (error) {
-        console.error('Error deleting advertisement:', error);
         const errorMessage = error.response?.data?.detail || error.message;
         setLocalError(`Failed to delete advertisement: ${errorMessage}`);
       }
@@ -69,7 +65,6 @@ const AdvertisementList = ({ user, setError }) => {
   
   const handleFormSubmit = async (adData) => {
     try {
-      console.log('Submitting advertisement data:', adData);
       
       let response;
       if (editingAd) {
@@ -103,7 +98,6 @@ const AdvertisementList = ({ user, setError }) => {
       setShowForm(false);
       fetchAdvertisements();
     } catch (error) {
-      console.error('Error submitting advertisement:', error);
       if (error.response && error.response.data) {
         let errorMessage = '';
         if (typeof error.response.data === 'object') {

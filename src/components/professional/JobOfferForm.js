@@ -14,7 +14,6 @@ const JobOfferForm = ({ user }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log('URL params:', params);
     const professionalId = params.professionalId || (params.object && params.object.id);
     const adId = params.adId;
     console.log('Extracted IDs - professionalId:', professionalId, 'adId:', adId);
@@ -44,7 +43,6 @@ const JobOfferForm = ({ user }) => {
         advertisement: adId
       };
   
-      console.log('Submitting data:', dataToSend);
   
       const response = await axios.post(
         'https://happy-carpenter-ebf6de9467cb.herokuapp.com/job-offers/create/', 
