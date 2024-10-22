@@ -82,85 +82,42 @@ Defensive programming was manually tested with the below user acceptance testing
 ## Bugs
 **Bugs**
 
-* JS Uncaught ReferenceError: 400 (Bad Request)
+* Follow Status Update Error: 401 (Unauthorized)
 
-   * To fix this, I need to review the registration form submission process, particularly the email field which seems to be causing an issue. The backend is reporting that the email field may not be blank.
+  * The follow/unfollow functionality was failing with a 401 error when trying to update follow status. Looking at the network tab, the issue was related to token expiration and authorization headers not being properly set for the request.
+  * To fix this, I implemented proper token refresh handling in the authService and updated the follow action to include the correct authorization headers.
 
-   ![Registration Error](documentation/bugs/registration_error.png)
+  ![Follow Error](src/assets/documentation/bugs/follow_error.png)
 
-* JS `'token_not_valid'` error when trying to access user data
+* Invalid Professional ID or Advertisement ID Error: 400 (Bad Request)
 
-   * To fix this, I need to implement proper token refresh logic in the frontend. The current access token is not valid, which could be due to expiration or improper storage/retrieval.
+  * When attempting to create a job offer, the system was failing to properly pass the professional ID and advertisement ID to the backend. The error occurred because the IDs were not being correctly extracted from the URL parameters.
+  * Fixed by updating the JobOfferForm component to correctly parse and handle URL parameters, and ensuring the backend validation was properly checking for these required fields.
 
-   ![Token Invalid Error](documentation/bugs/token_invalid_error.png)
+  ![Job Offer Error](src/assets/documentation/bugs/job_offer_error.png)
 
-* Form submission issues in the registration process
+* Multiple Failed Like Requests: 401 (Unauthorized)
 
-   * To fix this, I need to ensure all required fields are properly filled out before submission. The registration form should validate all fields, including email, before sending the request to the backend.
+  * Multiple simultaneous like requests were failing with 401 errors. The network tab showed multiple failed XHR requests to the likes endpoint for different posts.
+  * The solution involved implementing proper request debouncing and fixing the authorization token handling in the likeService to prevent multiple failed requests.
 
-   ![Registration Form](documentation/bugs/registration_form.png)
+  ![Like Requests Error](src/assets/documentation/bugs/like_requests_error.png)
 
-* User authentication state not properly maintained
+* Categories Map TypeError: Runtime Error
 
-   * To fix this, I need to implement proper state management for user authentication. After successful login, the user's authenticated state should be maintained and reflected in the UI (as seen in the navbar with the user's name and avatar).
+  * A runtime error occurred when trying to map over categories in the PostForm component. The error "categories.map is not a function" indicated that the categories data structure wasn't properly initialized.
+  * Fixed by ensuring the categories state was properly initialized as an array and handling the case where categories data might be null or undefined.
 
-   ![Authentication State](documentation/bugs/authentication_state.png)
+  ![Categories Error](src/assets/documentation/bugs/categories_error.png)
 
-* Responsive design issues on mobile devices
+* Network Error on Post Creation: ERR_NETWORK
 
-   * To fix this, I need to review and adjust the CSS for mobile views. The registration form appears to be cut off on smaller screens, indicating a need for better responsive design implementation.
+  * Post creation was failing with a network error. The console showed an Axios error with "ERR_NETWORK" when attempting to create a new post with an image.
+  * The fix involved properly configuring the multipart/form-data content type headers and ensuring the image upload was correctly handled in the form submission process.
 
-   ![Mobile View](documentation/bugs/mobile_view.png)
-
-**Bugs**
-
-* JS Error: Request failed with status code 404 on sign-in attempt
-
-   * To fix this, I need to verify the API endpoint for sign-in is correct and accessible. The 404 error suggests the endpoint might not exist or the server is not responding as expected.
-
-   ![Sign In Error](src/assets/documentation/bugs/signin_error.png)
-
-
-* Error fetching profile: Request failed with status code 500
-
-   * To fix this, I need to investigate the server-side error causing the 500 status. This could be due to incorrect data handling, database issues, or other server-side problems.
-
-   ![Profile Fetch Error](src/assets/documentation/bugs/profile_fetch_error.png)
-
-* Console warnings about Avatar src
-
-   * To fix this, I need to ensure that all avatar image URLs are valid and accessible. The console shows multiple warnings about Avatar src, which might indicate broken image links or incorrect URL formatting.
-
-   ![Avatar Warnings](src/assets/documentation/bugs/avatar_warnings.png)
-
-* Authentication state inconsistency
-
-   * To fix this, I need to implement proper state management for user authentication. The console shows conflicting messages about the user's auth status.
-
-   ![Auth State Inconsistency](src/assets/documentation/bugs/auth_state_inconsistency.png)
-
-* Login Forbidden Error: POST request to login endpoint returns 403 status
-
-   * To fix this, I need to investigate why the server is forbidding access to the login endpoint. This could be due to CORS issues, incorrect API credentials, or server-side authentication problems.
-
-   ![Login Forbidden Error](src/assets/documentation/bugs/login_forbidden_error.png)
-
-
+  ![Post Creation Error](src/assets/documentation/bugs/post_creation_error.png)
+  
 
 ## Unfixed Bugs
-
-### Unfixed Bugs
-
-- User needs to manually refresh the home page after signing in to see the signed-in version of the home page.
-
-
-    - Attempted fix: I tried implementing automatic redirection after sign-in, but it led to issues with state management. A more robust solution involving React Router and global state management is needed.
-
-- Like functionality is inconsistent and doesn't always update correctly.
-
-
-    - Attempted fix: I've tried updating the state locally after a like action, but it sometimes gets out of sync with the backend. A real-time update mechanism or optimistic UI updates might resolve this issue.
-
-
-> [!NOTE]  
+  
 > There are no remaining bugs that I am aware of.
