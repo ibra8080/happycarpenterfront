@@ -39,7 +39,6 @@ const ReviewForm = ({ user, initialReview = null, onSubmitSuccess }) => {
             navigate(`/profile/${username}`);
           }
         } catch (err) {
-          console.error('Error fetching data:', err);
           setError('Failed to fetch information. Please try again.');
         }
       };
@@ -75,14 +74,12 @@ const ReviewForm = ({ user, initialReview = null, onSubmitSuccess }) => {
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
       }
-      console.log('Review submitted successfully:', response.data);
       if (onSubmitSuccess) {
         onSubmitSuccess(response.data);
       } else {
         navigate(`/profile/${username}`);
       }
     } catch (err) {
-      console.error('Error submitting review:', err);
       if (err.response && err.response.data.detail === "You have already reviewed this professional.") {
         setError("You have already reviewed this professional.");
         navigate(`/profile/${username}`);

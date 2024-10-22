@@ -36,16 +36,13 @@ const authService = {
             userData.profile = userProfile;
           }
         } catch (profileError) {
-          console.error('Error fetching user profile:', profileError);
         }
 
-        console.log('User data after login:', userData);
         localStorage.setItem('user', JSON.stringify(userData));
         return userData;
       }
       return null;
     } catch (error) {
-      console.error('Login error:', error);
       throw error.response ? error.response.data : new Error('Network error');
     }
   },
@@ -62,7 +59,6 @@ const authService = {
         const user = JSON.parse(userStr);
         return user;
       } catch (e) {
-        console.error('Error parsing user data:', e);
         return null;
       }
     }
@@ -92,7 +88,6 @@ const authService = {
       }
       return response.data;
     } catch (error) {
-      console.error('Registration error:', error);
       throw error.response ? error.response.data : new Error('Network error');
     }
   },
@@ -124,7 +119,6 @@ const authService = {
           return response.data.access;
         }
       } catch (error) {
-        console.error('Token refresh failed:', error);
         throw error;
       }
     }
@@ -141,7 +135,6 @@ const authService = {
       localStorage.setItem('user', JSON.stringify(userData));
       return userData;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
       return userData;
     }
   },
@@ -153,7 +146,6 @@ const authService = {
         try {
           await authService.refreshToken();
         } catch (error) {
-          console.error('Failed to refresh token:', error);
           authService.logout();
           return null;
         }

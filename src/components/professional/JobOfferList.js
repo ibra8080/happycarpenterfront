@@ -20,13 +20,11 @@ const JobOfferList = ({ user, setError, isProfessionalView = false }) => {
         params: { role: isProfessionalView ? 'professional' : 'client' }
       });
       
-      console.log('API Response:', response.data);
       
       let offersData = Array.isArray(response.data) ? response.data : (response.data.results || []);
       setJobOffers(offersData);
       setError(null);
     } catch (error) {
-      console.error('Error fetching job offers:', error);
       setLocalError('Failed to fetch job offers. Please try again later.');
       setJobOffers([]);
     } finally {
@@ -47,7 +45,6 @@ const JobOfferList = ({ user, setError, isProfessionalView = false }) => {
       fetchJobOffers();
       setFeedback('');
     } catch (error) {
-      console.error('Error updating job offer status:', error);
       setLocalError('Failed to update job offer status. Please try again.');
     }
   };

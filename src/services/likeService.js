@@ -13,7 +13,6 @@ const likeService = {
       );
       return response.data;
     } catch (error) {
-      console.error('Error liking post:', error);
       throw error.response ? error.response.data : new Error('Network error');
     }
   },
@@ -24,7 +23,6 @@ const likeService = {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
-      console.error('Error unliking post:', error);
       throw error.response ? error.response.data : new Error('Network error');
     }
   },
@@ -36,7 +34,6 @@ const likeService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error getting likes:', error);
       throw error.response ? error.response.data : new Error('Network error');
     }
   }

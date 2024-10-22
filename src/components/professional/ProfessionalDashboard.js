@@ -10,16 +10,13 @@ const ProfessionalDashboard = ({ user }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log('Active tab changed:', activeTab);
   }, [activeTab]);
 
   const handleTabChange = (tab) => {
-    console.log('Tab change triggered:', tab);
     setActiveTab(tab);
   };
 
   const handleReviewStatusChange = (hasReviewed) => {
-    console.log('Review status changed:', hasReviewed);
   };
 
   if (!user || !user.profile || user.profile.user_type !== 'professional') {

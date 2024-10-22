@@ -11,7 +11,6 @@ const followService = {
       );
       return response.data;
     } catch (error) {
-      console.error('Error following user:', error);
       throw error.response ? error.response.data : new Error('Network error');
     }
   },
@@ -22,7 +21,6 @@ const followService = {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {
-      console.error('Error unfollowing user:', error);
       throw error.response ? error.response.data : new Error('Network error');
     }
   },
@@ -34,7 +32,6 @@ const followService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error getting follows:', error);
       throw error.response ? error.response.data : new Error('Network error');
     }
   }

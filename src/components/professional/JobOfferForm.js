@@ -57,8 +57,6 @@ const JobOfferForm = ({ user }) => {
       console.log('Job offer submitted:', response.data);
       navigate('/my-job-offers');
     } catch (error) {  
-      console.error('Error submitting job offer:', error);
-      console.error('Error response:', error.response?.data);
       const errorMessage = error.response?.data?.detail || 
                            Object.values(error.response?.data || {}).flat().join(', ') ||
                            error.message ||

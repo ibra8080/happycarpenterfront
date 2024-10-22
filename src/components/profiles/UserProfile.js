@@ -59,7 +59,6 @@ const UserProfile = ({ user }) => {
   
       setFollowers(mapFollowsToProfiles(followersResponse.data.results));
     } catch (error) {
-      console.error('Error fetching follow data:', error);
       setError('Failed to load follow data. Please try again.');
     }
   }, [user, username]);  
@@ -91,7 +90,6 @@ const UserProfile = ({ user }) => {
         setError('Profile not found');
       }
     } catch (err) {
-      console.error('Error fetching profile:', err);
       setError('Failed to load profile. Please try again.');
     } finally {
       setLoading(false);
@@ -129,7 +127,6 @@ const UserProfile = ({ user }) => {
   
       await fetchFollowData(profile.id);
     } catch (error) {
-      console.error('Error toggling follow:', error);
       setIsFollowing(originalFollowState);
       setFollowers(originalFollowers);
       if (error.response) {
@@ -192,7 +189,6 @@ const UserProfile = ({ user }) => {
       setProfile(response.data);
       setEditMode(false);
     } catch (err) {
-      console.error('Error updating profile:', err);
       setError('Failed to update profile. Please try again.');
     } finally {
       setSubmitting(false);

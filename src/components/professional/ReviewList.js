@@ -19,12 +19,9 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
   const fetchReviews = useCallback(async () => {
     try {
       setLoading(true);
-      console.log('Fetching reviews for professional:', professionalUsername);
-      console.log('User token:', user.token);
       const response = await axios.get(`https://happy-carpenter-ebf6de9467cb.herokuapp.com/reviews/?professional=${professionalUsername}`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      console.log('Reviews API Response:', response.data);
       const fetchedReviews = response.data.results || response.data;
       setReviews(fetchedReviews);
       const hasUserReviewed = fetchedReviews.some(review => review.owner === user.username);
@@ -34,9 +31,7 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
       }
       setLocalError(null);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
       if (error.response) {
-        console.error('Error response:', error.response.data);
       }
       setLocalError('Failed to fetch reviews. Please try again later.');
     } finally {
@@ -65,7 +60,6 @@ const ReviewList = ({ user, professionalUsername, onReviewStatusChange }) => {
       setShowDeleteModal(false);
       setReviewToDelete(null);
     } catch (error) {
-      console.error('Error deleting review:', error);
       if (error.response && error.response.data) {
         setLocalError(`Failed to delete review: ${error.response.data.detail}`);
       } else {
