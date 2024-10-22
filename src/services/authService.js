@@ -1,21 +1,24 @@
 import axios from 'axios';
 
 const API_URL = 'https://happy-carpenter-ebf6de9467cb.herokuapp.com/';
+const pendingRequests = new Map();
 
 axios.defaults.withCredentials = true;
 
 const authService = {
-  setAuthHeader: (token) => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-    }
-  },
-
+  // Core authentication methods
   login: async (username, password) => {
+    const requestId = Date.now().toString();
+    const controller = new AbortController();
+    pendingRequests.set(requestId, controller);
+
     try {
-      const response = await axios.post(`${API_URL}dj-rest-auth/login/`, { username, password });
+      const response = await axios.post(
+        `${API_URL}dj-rest-auth/login/`, 
+        { username, password },
+        { signal: controller.signal }
+      );
+      
       if (response.data.access) {
         let userData = {
           ...response.data.user,
@@ -26,57 +29,57 @@ const authService = {
         };
         authService.setAuthHeader(response.data.access);
         
-        // Fetch user profile
         try {
-          const profileResponse = await axios.get(`${API_URL}profiles/`, {
-            headers: { Authorization: `Bearer ${response.data.access}` }
-          });
+          const profileResponse = await axios.get(
+            `${API_URL}profiles/`,
+            {
+              headers: { Authorization: `Bearer ${response.data.access}` },
+              signal: controller.signal
+            }
+          );
           const userProfile = profileResponse.data.find(profile => profile.owner === username);
           if (userProfile) {
             userData.profile = userProfile;
           }
         } catch (profileError) {
-          console.error('Error fetching user profile:', profileError);
+          if (!axios.isCancel(profileError)) {
+            console.error('Error fetching user profile:', profileError);
+          }
         }
 
-        console.log('User data after login:', userData);
         localStorage.setItem('user', JSON.stringify(userData));
         return userData;
       }
       return null;
     } catch (error) {
-      console.error('Login error:', error);
+      if (axios.isCancel(error)) {
+        console.log('Login request cancelled');
+        throw new Error('Login cancelled');
+      }
       throw error.response ? error.response.data : new Error('Network error');
+    } finally {
+      pendingRequests.delete(requestId);
     }
   },
 
   logout: () => {
+    authService.cancelPendingRequests();
     localStorage.removeItem('user');
     authService.setAuthHeader(null);
   },
 
-  getCurrentUser: () => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        return user;
-      } catch (e) {
-        console.error('Error parsing user data:', e);
-        return null;
-      }
-    }
-    return null;
-  },
-
   register: async (username, email, password1, password2) => {
+    const requestId = Date.now().toString();
+    const controller = new AbortController();
+    pendingRequests.set(requestId, controller);
+
     try {
-      const response = await axios.post(`${API_URL}dj-rest-auth/registration/`, {
-        username,
-        email,
-        password1,
-        password2
-      });
+      const response = await axios.post(
+        `${API_URL}dj-rest-auth/registration/`,
+        { username, email, password1, password2 },
+        { signal: controller.signal }
+      );
+      
       if (response.data.access) {
         const userData = {
           ...response.data.user,
@@ -86,14 +89,56 @@ const authService = {
           username: username
         };
         authService.setAuthHeader(response.data.access);
-        await authService.fetchUserProfile(userData);
+        await authService.fetchUserProfile(userData, controller.signal);
         localStorage.setItem('user', JSON.stringify(userData));
         return userData;
       }
       return response.data;
     } catch (error) {
-      console.error('Registration error:', error);
+      if (axios.isCancel(error)) {
+        console.log('Registration request cancelled');
+        throw new Error('Registration cancelled');
+      }
       throw error.response ? error.response.data : new Error('Network error');
+    } finally {
+      pendingRequests.delete(requestId);
+    }
+  },
+
+  // Token handling methods
+  refreshToken: async () => {
+    const requestId = Date.now().toString();
+    const controller = new AbortController();
+    pendingRequests.set(requestId, controller);
+
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser?.refresh) {
+        return null;
+      }
+
+      const response = await axios.post(
+        `${API_URL}dj-rest-auth/token/refresh/`,
+        { refresh: currentUser.refresh },
+        { signal: controller.signal }
+      );
+
+      if (response?.data?.access) {
+        currentUser.token = response.data.access;
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        authService.setAuthHeader(response.data.access);
+        return response.data.access;
+      }
+      return null;
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log('Token refresh cancelled');
+        return null;
+      }
+      console.error('Token refresh failed:', error);
+      return null;
+    } finally {
+      pendingRequests.delete(requestId);
     }
   },
 
@@ -110,59 +155,88 @@ const authService = {
     return exp < currentTime;
   },
 
-  refreshToken: async () => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser && currentUser.refresh) {
-      try {
-        const response = await axios.post(`${API_URL}dj-rest-auth/token/refresh/`, {
-          refresh: currentUser.refresh
-        });
-        if (response.data.access) {
-          currentUser.token = response.data.access;
-          localStorage.setItem('user', JSON.stringify(currentUser));
-          authService.setAuthHeader(response.data.access);
-          return response.data.access;
-        }
-      } catch (error) {
-        console.error('Token refresh failed:', error);
-        throw error;
-      }
+  // Utility methods
+  setAuthHeader: (token) => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
     }
-    throw new Error('No refresh token available');
   },
 
-  fetchUserProfile: async (userData) => {
+  getCurrentUser: () => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        return user;
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+        return null;
+      }
+    }
+    return null;
+  },
+
+  // Profile methods
+  fetchUserProfile: async (userData, signal) => {
     try {
-      const profileResponse = await axios.get(`${API_URL}profiles/`, {
-        headers: { Authorization: `Bearer ${userData.token}` }
-      });
+      const profileResponse = await axios.get(
+        `${API_URL}profiles/`,
+        {
+          headers: { Authorization: `Bearer ${userData.token}` },
+          signal: signal
+        }
+      );
       const userProfile = profileResponse.data.find(profile => profile.owner === userData.username);
       userData.profile_image = userProfile ? userProfile.image : null;
       localStorage.setItem('user', JSON.stringify(userData));
       return userData;
     } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log('Profile fetch cancelled');
+        return userData;
+      }
       console.error('Error fetching user profile:', error);
       return userData;
     }
   },
 
+  // Initialize auth
   initializeAuth: async () => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser && currentUser.token) {
-      if (authService.isTokenExpired(currentUser.token)) {
-        try {
-          await authService.refreshToken();
-        } catch (error) {
-          console.error('Failed to refresh token:', error);
-          authService.logout();
-          return null;
+    const requestId = Date.now().toString();
+    const controller = new AbortController();
+    pendingRequests.set(requestId, controller);
+
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (currentUser && currentUser.token) {
+        if (authService.isTokenExpired(currentUser.token)) {
+          const newToken = await authService.refreshToken();
+          if (!newToken) {
+            authService.logout();
+            return null;
+          }
         }
-      } else {
         authService.setAuthHeader(currentUser.token);
+        return currentUser;
       }
-      return currentUser;
+      return null;
+    } catch (error) {
+      console.error('Auth initialization failed:', error);
+      authService.logout();
+      return null;
+    } finally {
+      pendingRequests.delete(requestId);
     }
-    return null;
+  },
+
+  // Request handling
+  cancelPendingRequests: () => {
+    pendingRequests.forEach((controller, requestId) => {
+      controller.abort();
+      pendingRequests.delete(requestId);
+    });
   }
 };
 
